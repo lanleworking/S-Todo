@@ -4,14 +4,20 @@ import { RouterProvider, createRouter } from '@tanstack/react-router'
 
 import * as TanStackQueryProvider from './integrations/tanstack-query/root-provider.tsx'
 
+// mantine
+import AppMantimeProvider from './providers/Provider/AppMantineProvider.tsx'
+
 // Import the generated route tree
 import { routeTree } from './routeTree.gen'
 
 import './styles.css'
 import reportWebVitals from './reportWebVitals.ts'
 
-// Create a new router instance
+// init i18n
+import './config/i18n.ts'
+import { ConfigProvider } from 'antd'
 
+// Create a new router instance
 const TanStackQueryProviderContext = TanStackQueryProvider.getContext()
 const router = createRouter({
   routeTree,
@@ -38,7 +44,18 @@ if (rootElement && !rootElement.innerHTML) {
   root.render(
     <StrictMode>
       <TanStackQueryProvider.Provider {...TanStackQueryProviderContext}>
-        <RouterProvider router={router} />
+        <AppMantimeProvider>
+          <ConfigProvider
+            theme={{
+              token: {
+                fontFamily: 'SourceCodePro, monospace',
+                colorPrimary: 'var(--primary-color)',
+              },
+            }}
+          >
+            <RouterProvider router={router} />
+          </ConfigProvider>
+        </AppMantimeProvider>
       </TanStackQueryProvider.Provider>
     </StrictMode>,
   )

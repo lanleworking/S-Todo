@@ -1,0 +1,61 @@
+@font-face {
+  font-family: 'StoryScript';
+  src: url('../../assets/fonts/StoryScript-Regular.ttf') format('truetype');
+  font-weight: 400;
+  font-style: normal;
+}
+
+.day {
+  font-family: 'StoryScript';
+  font-size: 2rem;
+  font-weight: bold;
+  background: linear-gradient(135deg, #42d392, #647eff);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+/* One gradient per day */
+.monday {
+  background: linear-gradient(135deg, #42d392, #647eff);
+}
+.tuesday {
+  background: linear-gradient(135deg, #ff7eb3, #ff758c);
+}
+.wednesday {
+  background: linear-gradient(135deg, #f7971e, #ffd200);
+}
+.thursday {
+  background: linear-gradient(135deg, #6a11cb, #2575fc);
+}
+.friday {
+  background: linear-gradient(135deg, #11998e, #38ef7d);
+}
+.saturday {
+  background: linear-gradient(135deg, #fc6076, #ff9a44);
+}
+.sunday {
+  background: linear-gradient(135deg, #f953c6, #b91d73);
+}
+
+.day {
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.leftGrid {
+  border-right: 1px solid var(--border-color);
+}
+
+.todoCard {
+  background-color: #ffa50061;
+  padding: 8px;
+  border-radius: 8px;
+}
+
+.done {
+  background-color: #78f9898c;
+}
+
+.priority {
+  background-color: #ff010133;
+}

@@ -1,0 +1,21 @@
+{
+  "login": "Đăng nhập",
+  "username": "Username / Email",
+  "password": "Mật khẩu",
+  "register": "Đăng ký",
+  "fullName": "Họ Tên",
+  "forgotPassword": "Quên mật khẩu?",
+  "email": "Email",
+  "usernameDescription": "Trường này sẽ sử dụng trong nội dùng chuyển khoản.",
+  "backToLogin": "Quay lại đăng nhập",
+  "notfound": "Xin lỗi, trang bạn truy cập không tồn tại.",
+  "goHome": "Về trang chủ",
+  "error": {
+    "required": "Trường này là bắt buộc",
+    "invalidEmail": "Địa chỉ email không hợp lệ",
+    "minLength": "Độ dài tối thiểu là {{min}} ký tự",
+    "maxLength": "Độ dài tối đa là {{max}} ký tự",
+    "invalidFormat": "Định dạng không hợp lệ",
+    "invalidNonWhiteSpace": "Không được chứa khoảng trắng"
+  }
+}

@@ -1,0 +1,15 @@
+@keyframes ZoomInOut {
+  0%,
+  100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.2);
+  }
+}
+
+.loaderImage {
+  aspect-ratio: 1 / 1;
+  width: 100px;
+  animation: ZoomInOut 2s ease-in-out infinite;
+}

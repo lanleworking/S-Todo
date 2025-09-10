@@ -1,0 +1,15 @@
+.authLayout {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  width: 100%;
+  background: radial-gradient(
+    circle,
+    rgba(242, 242, 242, 1) 30%,
+    rgba(63, 183, 196, 1) 100%
+  );
+  background-size: cover;
+  background-repeat: no-repeat;
+}
