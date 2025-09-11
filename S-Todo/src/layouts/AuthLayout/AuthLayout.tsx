@@ -1,10 +1,9 @@
 import STodoLogo from '@/assets/logos/Web_Logo.png'
 import VNIcon from '@/assets/icons/vn_icon.webp'
 import USAIcon from '@/assets/icons/usa_icon.webp'
-import MuiBox from '@mui/material/Box'
 import { EAppLanguage } from '@/constants/App'
 import { useTranslation } from 'react-i18next'
-import { Image, Switch, Box } from '@mantine/core'
+import { Image, Switch, Box, Flex, Center } from '@mantine/core'
 import styles from './AuthLayout.module.scss'
 import clsx from 'clsx'
 
@@ -16,8 +15,8 @@ function AuthLayout({ children }: { children: React.ReactNode }) {
   }
   return (
     <Box className={clsx(styles.authLayout)}>
-      <MuiBox minWidth={380} px={4}>
-        <MuiBox display={'flex'} justifyContent={'flex-end'}>
+      <Box miw={380} px={4}>
+        <Flex justify={'flex-end'}>
           <Switch
             size="lg"
             defaultChecked={i18n.language === EAppLanguage.VI}
@@ -29,17 +28,17 @@ function AuthLayout({ children }: { children: React.ReactNode }) {
               )
             }
           />
-        </MuiBox>
-        <MuiBox textAlign={'center'} mb={'20px'}>
+        </Flex>
+        <Center mb={'20px'}>
           <Box
             component={'img'}
             src={STodoLogo}
             alt="S-Todo Logo"
             width={200}
           />
-        </MuiBox>
+        </Center>
         {children}
-      </MuiBox>
+      </Box>
     </Box>
   )
 }

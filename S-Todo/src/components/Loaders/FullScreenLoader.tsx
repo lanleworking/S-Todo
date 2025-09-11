@@ -1,24 +1,25 @@
-import { Image } from '@mantine/core'
-import Box from '@mui/material/Box'
+import { Box, Flex, Image } from '@mantine/core'
 import clsx from 'clsx'
 import styles from './FullScreen.module.scss'
 
 function FullScreenLoader() {
   return (
-    <Box
-      height={'100vh'}
+    <Flex
+      h={'100vh'}
       display={'flex'}
-      justifyContent={'center'}
-      alignItems={'center'}
-      overflow={'hidden'}
-      bgcolor={'white'}
+      justify={'center'}
+      align={'center'}
+      style={{
+        backgroundColor: 'white',
+        overflow: 'hidden',
+      }}
     >
       <Image
         className={clsx(styles.loaderImage)}
         src={'/App_Logo.png'}
         alt="Loading..."
       />
-    </Box>
+    </Flex>
   )
 }
 

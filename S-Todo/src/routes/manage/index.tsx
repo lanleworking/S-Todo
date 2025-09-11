@@ -1,10 +1,10 @@
-import NotFound from '@/pages/not-found'
+import ManageTodo from '@/pages/manage'
 import { createFileRoute } from '@tanstack/react-router'
 
-export const Route = createFileRoute('/not-found')({
+export const Route = createFileRoute('/manage/')({
   component: RouteComponent,
 })
 
 function RouteComponent() {
-  return <NotFound />
+  return <ManageTodo />
 }

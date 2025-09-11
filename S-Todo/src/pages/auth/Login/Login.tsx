@@ -1,11 +1,16 @@
-import { Button, PasswordInput, Stack, TextInput } from '@mantine/core'
+import {
+  Box,
+  Button,
+  Center,
+  PasswordInput,
+  Stack,
+  TextInput,
+} from '@mantine/core'
 import { useForm } from '@mantine/form'
 // icon
-import PersonIcon from '@mui/icons-material/Person'
-import KeyIcon from '@mui/icons-material/Key'
+import { FaUser, FaKey } from 'react-icons/fa'
 import { useTranslation } from 'react-i18next'
 import { validateForm } from '@/utils/validate/validateForm'
-import Box from '@mui/material/Box'
 import { Link, useNavigate } from '@tanstack/react-router'
 import { EResetPasswordMode } from '@/constants/App'
 import useAuth from '@/hooks/useAuth'
@@ -68,7 +73,7 @@ function Login() {
             },
           }}
           placeholder={t('username')}
-          leftSection={<PersonIcon />}
+          leftSection={<FaUser />}
         />
         <PasswordInput
           disabled={isPending}
@@ -80,13 +85,9 @@ function Login() {
             },
           }}
           placeholder={t('password')}
-          leftSection={<KeyIcon />}
+          leftSection={<FaKey />}
         />
-        <Box
-          color={'var(--primary-color)'}
-          fontSize={'0.8rem'}
-          textAlign={'right'}
-        >
+        <Box color={'var(--primary-color)'} fs={'0.8rem'} ta={'right'}>
           <Link
             disabled={isPending}
             to="/auth/reset-password"
@@ -100,15 +101,11 @@ function Login() {
         <Button loading={isPending} type="submit">
           {t('login')}
         </Button>
-        <Box
-          color={'var(--primary-color)'}
-          fontSize={'0.8rem'}
-          textAlign={'center'}
-        >
+        <Center c={'var(--primary-color)'} fs={'0.8rem'}>
           <Link disabled={isPending} to="/auth/register">
             {t('register')}
           </Link>
-        </Box>
+        </Center>
       </Stack>
     </form>
   )

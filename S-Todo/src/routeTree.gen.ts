@@ -10,8 +10,10 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as NotFoundRouteImport } from './routes/not-found'
+import { Route as ManageRouteRouteImport } from './routes/manage.route'
 import { Route as AuthRouteRouteImport } from './routes/auth.route'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as ManageIndexRouteImport } from './routes/manage/index'
 import { Route as AuthResetPasswordRouteImport } from './routes/auth/reset-password'
 import { Route as AuthRegisterRouteImport } from './routes/auth/register'
 import { Route as AuthLoginRouteImport } from './routes/auth/login'
@@ -19,6 +21,11 @@ import { Route as AuthLoginRouteImport } from './routes/auth/login'
 const NotFoundRoute = NotFoundRouteImport.update({
   id: '/not-found',
   path: '/not-found',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ManageRouteRoute = ManageRouteRouteImport.update({
+  id: '/manage',
+  path: '/manage',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AuthRouteRoute = AuthRouteRouteImport.update({
@@ -30,6 +37,11 @@ const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
+} as any)
+const ManageIndexRoute = ManageIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => ManageRouteRoute,
 } as any)
 const AuthResetPasswordRoute = AuthResetPasswordRouteImport.update({
   id: '/reset-password',
@@ -50,10 +62,12 @@ const AuthLoginRoute = AuthLoginRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/auth': typeof AuthRouteRouteWithChildren
+  '/manage': typeof ManageRouteRouteWithChildren
   '/not-found': typeof NotFoundRoute
   '/auth/login': typeof AuthLoginRoute
   '/auth/register': typeof AuthRegisterRoute
   '/auth/reset-password': typeof AuthResetPasswordRoute
+  '/manage/': typeof ManageIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -62,25 +76,30 @@ export interface FileRoutesByTo {
   '/auth/login': typeof AuthLoginRoute
   '/auth/register': typeof AuthRegisterRoute
   '/auth/reset-password': typeof AuthResetPasswordRoute
+  '/manage': typeof ManageIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/auth': typeof AuthRouteRouteWithChildren
+  '/manage': typeof ManageRouteRouteWithChildren
   '/not-found': typeof NotFoundRoute
   '/auth/login': typeof AuthLoginRoute
   '/auth/register': typeof AuthRegisterRoute
   '/auth/reset-password': typeof AuthResetPasswordRoute
+  '/manage/': typeof ManageIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
     | '/auth'
+    | '/manage'
     | '/not-found'
     | '/auth/login'
     | '/auth/register'
     | '/auth/reset-password'
+    | '/manage/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -89,19 +108,23 @@ export interface FileRouteTypes {
     | '/auth/login'
     | '/auth/register'
     | '/auth/reset-password'
+    | '/manage'
   id:
     | '__root__'
     | '/'
     | '/auth'
+    | '/manage'
     | '/not-found'
     | '/auth/login'
     | '/auth/register'
     | '/auth/reset-password'
+    | '/manage/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AuthRouteRoute: typeof AuthRouteRouteWithChildren
+  ManageRouteRoute: typeof ManageRouteRouteWithChildren
   NotFoundRoute: typeof NotFoundRoute
 }
 
@@ -112,6 +135,13 @@ declare module '@tanstack/react-router' {
       path: '/not-found'
       fullPath: '/not-found'
       preLoaderRoute: typeof NotFoundRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/manage': {
+      id: '/manage'
+      path: '/manage'
+      fullPath: '/manage'
+      preLoaderRoute: typeof ManageRouteRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/auth': {
@@ -127,6 +157,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/manage/': {
+      id: '/manage/'
+      path: '/'
+      fullPath: '/manage/'
+      preLoaderRoute: typeof ManageIndexRouteImport
+      parentRoute: typeof ManageRouteRoute
     }
     '/auth/reset-password': {
       id: '/auth/reset-password'
@@ -168,9 +205,22 @@ const AuthRouteRouteWithChildren = AuthRouteRoute._addFileChildren(
   AuthRouteRouteChildren,
 )
 
+interface ManageRouteRouteChildren {
+  ManageIndexRoute: typeof ManageIndexRoute
+}
+
+const ManageRouteRouteChildren: ManageRouteRouteChildren = {
+  ManageIndexRoute: ManageIndexRoute,
+}
+
+const ManageRouteRouteWithChildren = ManageRouteRoute._addFileChildren(
+  ManageRouteRouteChildren,
+)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthRouteRoute: AuthRouteRouteWithChildren,
+  ManageRouteRoute: ManageRouteRouteWithChildren,
   NotFoundRoute: NotFoundRoute,
 }
 export const routeTree = rootRouteImport

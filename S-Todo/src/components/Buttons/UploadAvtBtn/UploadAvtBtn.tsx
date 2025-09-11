@@ -1,9 +1,9 @@
-import { useEffect, useState, type Dispatch, type SetStateAction } from 'react'
+import { useState, type Dispatch, type SetStateAction } from 'react'
 import { Upload } from 'antd'
 import type { GetProp, UploadFile, UploadProps } from 'antd'
 import ImgCrop from 'antd-img-crop'
 import toast from 'react-hot-toast'
-import FileUploadIcon from '@mui/icons-material/FileUpload'
+import { FiUpload } from 'react-icons/fi'
 
 type FileType = Parameters<GetProp<UploadProps, 'beforeUpload'>>[0]
 type UploadAvtBtnType = {
@@ -55,7 +55,7 @@ const UploadAvtBtn = ({ setAvtFile }: UploadAvtBtnType) => {
 
   const uploadButton = (
     <button style={{ border: 0, background: 'none' }} type="button">
-      <FileUploadIcon />
+      <FiUpload />
       {/* {loading ? <LoadingOutlined /> : <PlusOutlined />} */}
       <div style={{ marginTop: 8 }}>Avatar</div>
     </button>

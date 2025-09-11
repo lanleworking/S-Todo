@@ -1,11 +1,16 @@
 import { UploadAvtBtn } from '@/components/Buttons/UploadAvtBtn'
-import { Button, Grid, PasswordInput, TextInput } from '@mantine/core'
-import Box from '@mui/material/Box'
+import {
+  Box,
+  Button,
+  Center,
+  Grid,
+  PasswordInput,
+  TextInput,
+} from '@mantine/core'
 import { Link, useNavigate } from '@tanstack/react-router'
 
-import PersonIcon from '@mui/icons-material/Person'
-import EmailIcon from '@mui/icons-material/Email'
-import KeyIcon from '@mui/icons-material/Key'
+import { FaUser, FaKey, FaUserEdit } from 'react-icons/fa'
+import { IoMdMail } from 'react-icons/io'
 import { useForm } from '@mantine/form'
 import { validateForm } from '@/utils/validate/validateForm'
 import { useTranslation } from 'react-i18next'
@@ -75,9 +80,9 @@ function Register() {
   return (
     <Box>
       <form onSubmit={onSubmit((values) => handleRegister(values, avtFile))}>
-        <Box display={'flex'} justifyContent={'center'}>
+        <Center>
           <UploadAvtBtn setAvtFile={setAvtFile} />
-        </Box>
+        </Center>
         <Grid align="end">
           <Grid.Col span={{ base: 12, sm: 6 }}>
             <TextInput
@@ -92,7 +97,7 @@ function Register() {
               label="Username"
               placeholder="Username"
               description={t('usernameDescription')}
-              leftSection={<PersonIcon />}
+              leftSection={<FaUser />}
               withAsterisk
             />
           </Grid.Col>
@@ -108,7 +113,7 @@ function Register() {
               {...getInputProps('password')}
               label={t('password')}
               placeholder={t('password')}
-              leftSection={<KeyIcon />}
+              leftSection={<FaKey />}
               withAsterisk
             />
           </Grid.Col>
@@ -124,7 +129,7 @@ function Register() {
               {...getInputProps('fullName')}
               label={t('fullName')}
               placeholder={t('fullName')}
-              leftSection={<EmailIcon />}
+              leftSection={<FaUserEdit />}
             />
           </Grid.Col>
           <Grid.Col span={{ base: 12, sm: 6 }}>
@@ -139,16 +144,16 @@ function Register() {
               {...getInputProps('email')}
               label={t('email')}
               placeholder={t('email')}
-              leftSection={<EmailIcon />}
+              leftSection={<IoMdMail />}
             />
           </Grid.Col>
         </Grid>
         <Button loading={isPending} mt={20} mb={12} fullWidth type="submit">
           {t('register')}
         </Button>
-        <Box fontSize={'0.8rem'} textAlign={'center'}>
+        <Center fs={'0.8rem'}>
           <Link to={'/auth/login'}>{t('backToLogin')}</Link>
-        </Box>
+        </Center>
       </form>
     </Box>
   )

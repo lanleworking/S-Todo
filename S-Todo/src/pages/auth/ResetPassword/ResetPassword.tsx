@@ -3,8 +3,8 @@ import { Button, PasswordInput, Stack, TextInput } from '@mantine/core'
 import { useNavigate, useSearch } from '@tanstack/react-router'
 import { useTranslation } from 'react-i18next'
 
-import PersonIcon from '@mui/icons-material/Person'
-import KeyIcon from '@mui/icons-material/Key'
+import { FaUser, FaKey } from 'react-icons/fa'
+
 function ResetPassword() {
   const { t } = useTranslation()
   const navigate = useNavigate()
@@ -16,7 +16,7 @@ function ResetPassword() {
     return (
       <Stack gap={'xs'}>
         <TextInput
-          leftSection={<PersonIcon />}
+          leftSection={<FaUser />}
           label={t('username')}
           placeholder={t('username')}
           description="Enter your username or email"
@@ -43,7 +43,7 @@ function ResetPassword() {
               },
             }}
             withAsterisk
-            leftSection={<KeyIcon />}
+            leftSection={<FaKey />}
           />
           <PasswordInput
             label="New Password"
@@ -54,7 +54,7 @@ function ResetPassword() {
               },
             }}
             withAsterisk
-            leftSection={<KeyIcon />}
+            leftSection={<FaKey />}
           />
           <PasswordInput
             label="Re-enter Password"
@@ -65,7 +65,7 @@ function ResetPassword() {
               },
             }}
             withAsterisk
-            leftSection={<KeyIcon />}
+            leftSection={<FaKey />}
           />
           <Button>Update</Button>
         </Stack>
