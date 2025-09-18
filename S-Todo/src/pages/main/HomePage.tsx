@@ -22,15 +22,14 @@ import {
   Tooltip,
   BarChart,
   Bar,
-  Rectangle,
   XAxis,
   YAxis,
-  CartesianGrid,
-  Legend,
 } from 'recharts'
+import { LuUsersRound } from 'react-icons/lu'
+import { CiTimer } from 'react-icons/ci'
 
 function HomePage() {
-  const { getCurrentDay } = useDayJs()
+  const { getCurrentDay, fromNow, isAfter } = useDayJs()
   const day = getCurrentDay()
 
   const data = [
@@ -87,7 +86,7 @@ function HomePage() {
   }
 
   return (
-    <Box px={40} mt={20}>
+    <>
       <Flex gap={20}>
         <Stack miw={380} px={40} className={clsx(styles.leftGrid)}>
           <Flex justify={'space-between'} align={'center'}>
@@ -125,17 +124,25 @@ function HomePage() {
           flex={1}
           align="stretch"
         >
-          <Grid.Col span={{ sm: 12, md: 6 }}>
+          <Grid.Col span={{ md: 12, lg: 6 }}>
             <Box
-              className={clsx(styles.todoCard, styles.priority)}
+              className={clsx(styles.todoCard, 'priority')}
               style={{ height: '100%' }}
             >
               <Flex h={'100%'} direction={'column'}>
                 <Box flex={1}>
-                  <Title order={3}>First Todo</Title>
+                  <Flex align={'center'} justify={'space-between'}>
+                    <Title order={3}>First Todo</Title>
+                    <Badge color="red" size="sm">
+                      Priority
+                    </Badge>
+                  </Flex>
                   <Text
+                    mb={16}
+                    mt={8}
                     className={clsx(styles.textEllipsisTwoLines)}
                     w={'100%'}
+                    size="sm"
                     c={'dimmed'}
                   >
                     This is a descripton dwqdqw dqw dqw dqw dqw dqw dqwd qwd
@@ -143,21 +150,32 @@ function HomePage() {
                     dqw dqw dw qdqw d qwd qw dwq d wqf q fqw dwq d qwd
                   </Text>
                 </Box>
-                <Flex pt={12} gap={8}>
-                  <Badge color="red" size="sm">
-                    Priority
+                <Flex gap={8} justify={'space-between'} align={'center'}>
+                  <Badge
+                    color="white"
+                    c={'black'}
+                    bd={'1px solid #0000002b'}
+                    size="sm"
+                    leftSection={<LuUsersRound />}
+                  >
+                    Shared
                   </Badge>
-                  <Badge color="#0085cc" size="sm">
-                    Done
-                  </Badge>
+                  <Flex
+                    c={isAfter('2025-09-14') ? 'red' : 'dimmed'}
+                    gap={8}
+                    align={'center'}
+                  >
+                    <CiTimer size={16} />
+                    <Text size="sm">{fromNow('2025-09-14')}</Text>
+                  </Flex>
                 </Flex>
               </Flex>
             </Box>
           </Grid.Col>
 
-          <Grid.Col span={{ sm: 12, md: 6 }}>
+          <Grid.Col span={{ md: 12, lg: 6 }}>
             <Box
-              className={clsx(styles.todoCard, styles.done)}
+              className={clsx(styles.todoCard, 'done')}
               style={{ height: '100%' }}
             >
               <Title order={3}>Done Todo</Title>
@@ -170,8 +188,11 @@ function HomePage() {
             </Box>
           </Grid.Col>
 
-          <Grid.Col span={{ sm: 12, md: 6 }}>
-            <Box className={clsx(styles.todoCard)} style={{ height: '100%' }}>
+          <Grid.Col span={{ md: 12, lg: 6 }}>
+            <Box
+              className={clsx(styles.todoCard, 'doing')}
+              style={{ height: '100%' }}
+            >
               <Title order={3}>Normal Todo</Title>
               <Text c={'dimmed'}>This is a descripton</Text>
               <Flex pt={12} gap={8}>
@@ -182,9 +203,9 @@ function HomePage() {
             </Box>
           </Grid.Col>
 
-          <Grid.Col span={{ sm: 12, md: 6 }}>
+          <Grid.Col span={{ md: 12, lg: 6 }}>
             <Box
-              className={clsx(styles.todoCard, styles.new)}
+              className={clsx(styles.todoCard, 'new')}
               style={{ height: '100%' }}
             >
               <Title order={3}>New Todo</Title>
@@ -201,9 +222,9 @@ function HomePage() {
 
       {/* Overview */}
       <Box mt={20} pt={20} className={clsx(styles.borderTop)}>
-        <Title order={3}>Overview</Title>
         <Grid gutter={0}>
           <Grid.Col className={clsx(styles.leftGrid)} h={200} span={6}>
+            <Title order={3}>Ovewview</Title>
             <ResponsiveContainer width={'100%'} height={'100%'}>
               <PieChart>
                 <Pie
@@ -226,6 +247,9 @@ function HomePage() {
             </ResponsiveContainer>
           </Grid.Col>
           <Grid.Col span={6}>
+            <Title pl={12} order={3}>
+              Status
+            </Title>
             <Center>
               <BarChart width={400} height={240} data={barData}>
                 <XAxis dataKey={'name'} />
@@ -241,7 +265,7 @@ function HomePage() {
           </Grid.Col>
         </Grid>
       </Box>
-    </Box>
+    </>
   )
 }
 

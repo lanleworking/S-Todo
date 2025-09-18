@@ -1,4 +1,4 @@
-import { Avatar, Flex, Image, Menu, NavLink, Text } from '@mantine/core'
+import { Avatar, Box, Flex, Image, Menu, NavLink, Text } from '@mantine/core'
 import WebLogo from '@/assets/logos/Web_Logo.png'
 import { Link, useNavigate, useRouter } from '@tanstack/react-router'
 import useAuth from '@/hooks/useAuth'
@@ -9,7 +9,7 @@ import { IoMdExit } from 'react-icons/io'
 function AppHeader() {
   const router = useRouter()
   const navigate = useNavigate()
-  const { setUser } = useContext(AuthContext)
+  const { setUser, user } = useContext(AuthContext)
   const { logOutMutation } = useAuth()
   const { mutate } = logOutMutation
 
@@ -44,11 +44,12 @@ function AppHeader() {
       <Flex>
         {links.map((l, i) => (
           <NavLink
+            component={Link}
             key={i}
             style={{
               borderRadius: '8px',
             }}
-            href={l.href}
+            to={l.href}
             label={l.label}
             active={path.includes(l.href)}
           />
@@ -64,12 +65,25 @@ function AppHeader() {
             gap={8}
             align={'center'}
           >
-            <Text>Full Name</Text>
-            <Avatar src={null} name="Le Lan" color="initials" />
+            <Avatar
+              style={{
+                border: '1px solid var(--border-color)',
+              }}
+              src={user?.avatarUrl}
+              name={user?.fullName}
+              color="initials"
+            />
           </Flex>
         </Menu.Target>
 
         <Menu.Dropdown>
+          <Box ta={'center'} p={8}>
+            <Text>{user?.fullName}</Text>
+            <Text c="dimmed" size="xs">
+              @{user?.userId}
+            </Text>
+          </Box>
+          <Menu.Divider />
           <Menu.Item
             onClick={handleLogout}
             color="red"

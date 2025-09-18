@@ -17,8 +17,8 @@ function AuthProvider({ children }: { children: React.ReactNode }) {
     const isPublic = PUBLIC_ROUTES.includes(location)
     axiosClient
       .get('/auth/me')
-      .then(() => {
-        setUser(user)
+      .then((res) => {
+        setUser(res.data)
         if (isPublic) {
           navigate({
             to: '/',

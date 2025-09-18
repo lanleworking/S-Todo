@@ -9,7 +9,16 @@ export const throwResponse = (status: EStatusCodes, code: EHttpCode, message?: a
 };
 
 export const catchResponse = (set: any, error: ICommonResponse) => {
-    console.error(error);
+    const errorInfo = {
+        timestamp: new Date().toLocaleString('en-US', {
+            timeZone: 'Asia/Ho_Chi_Minh',
+            dateStyle: 'medium',
+            timeStyle: 'medium',
+        }),
+        error: error,
+    };
+
+    console.error('Error Details:', errorInfo);
     set.status = error.status;
     return error;
 };

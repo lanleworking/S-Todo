@@ -19,7 +19,8 @@ const register = async (payload: RegisterType, jwt: IJWTService, set: any) => {
     if (!payload.userId || !payload.password)
         throw throwResponse(EStatusCodes.BAD_REQUEST, EHttpCode.INVALID_PAYLOAD, 'Invalid Payload');
 
-    const { userId, password } = payload;
+    const { userId: userIdOrigin, password } = payload;
+    const userId = userIdOrigin.toLowerCase();
 
     const isExist = await db
         .select({

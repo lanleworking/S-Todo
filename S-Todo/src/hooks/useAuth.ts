@@ -19,8 +19,8 @@ function useAuth() {
   const loginMutation = useMutation({
     mutationKey: ['login'],
     mutationFn: async (payload: any): Promise<IUser> => {
-      const res = (await axiosClient.post('/auth/login', payload)) as IUser
-      return res
+      const res = await axiosClient.post('/auth/login', payload)
+      return res.data
     },
   })
 
@@ -29,7 +29,7 @@ function useAuth() {
     mutationKey: ['logOut'],
     mutationFn: async () => {
       const res = await axiosClient.post('/auth/logout')
-      return res
+      return res.data
     },
   })
 

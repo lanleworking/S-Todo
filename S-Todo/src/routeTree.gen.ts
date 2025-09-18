@@ -17,6 +17,7 @@ import { Route as ManageIndexRouteImport } from './routes/manage/index'
 import { Route as AuthResetPasswordRouteImport } from './routes/auth/reset-password'
 import { Route as AuthRegisterRouteImport } from './routes/auth/register'
 import { Route as AuthLoginRouteImport } from './routes/auth/login'
+import { Route as ManageCreateIndexRouteImport } from './routes/manage/create/index'
 
 const NotFoundRoute = NotFoundRouteImport.update({
   id: '/not-found',
@@ -58,6 +59,11 @@ const AuthLoginRoute = AuthLoginRouteImport.update({
   path: '/login',
   getParentRoute: () => AuthRouteRoute,
 } as any)
+const ManageCreateIndexRoute = ManageCreateIndexRouteImport.update({
+  id: '/create/',
+  path: '/create/',
+  getParentRoute: () => ManageRouteRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -68,6 +74,7 @@ export interface FileRoutesByFullPath {
   '/auth/register': typeof AuthRegisterRoute
   '/auth/reset-password': typeof AuthResetPasswordRoute
   '/manage/': typeof ManageIndexRoute
+  '/manage/create': typeof ManageCreateIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -77,6 +84,7 @@ export interface FileRoutesByTo {
   '/auth/register': typeof AuthRegisterRoute
   '/auth/reset-password': typeof AuthResetPasswordRoute
   '/manage': typeof ManageIndexRoute
+  '/manage/create': typeof ManageCreateIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -88,6 +96,7 @@ export interface FileRoutesById {
   '/auth/register': typeof AuthRegisterRoute
   '/auth/reset-password': typeof AuthResetPasswordRoute
   '/manage/': typeof ManageIndexRoute
+  '/manage/create/': typeof ManageCreateIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -100,6 +109,7 @@ export interface FileRouteTypes {
     | '/auth/register'
     | '/auth/reset-password'
     | '/manage/'
+    | '/manage/create'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -109,6 +119,7 @@ export interface FileRouteTypes {
     | '/auth/register'
     | '/auth/reset-password'
     | '/manage'
+    | '/manage/create'
   id:
     | '__root__'
     | '/'
@@ -119,6 +130,7 @@ export interface FileRouteTypes {
     | '/auth/register'
     | '/auth/reset-password'
     | '/manage/'
+    | '/manage/create/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -186,6 +198,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthLoginRouteImport
       parentRoute: typeof AuthRouteRoute
     }
+    '/manage/create/': {
+      id: '/manage/create/'
+      path: '/create'
+      fullPath: '/manage/create'
+      preLoaderRoute: typeof ManageCreateIndexRouteImport
+      parentRoute: typeof ManageRouteRoute
+    }
   }
 }
 
@@ -207,10 +226,12 @@ const AuthRouteRouteWithChildren = AuthRouteRoute._addFileChildren(
 
 interface ManageRouteRouteChildren {
   ManageIndexRoute: typeof ManageIndexRoute
+  ManageCreateIndexRoute: typeof ManageCreateIndexRoute
 }
 
 const ManageRouteRouteChildren: ManageRouteRouteChildren = {
   ManageIndexRoute: ManageIndexRoute,
+  ManageCreateIndexRoute: ManageCreateIndexRoute,
 }
 
 const ManageRouteRouteWithChildren = ManageRouteRoute._addFileChildren(

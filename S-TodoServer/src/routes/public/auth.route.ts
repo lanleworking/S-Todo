@@ -21,9 +21,9 @@ const authRoute = new Elysia({
             secret: process.env.SECRET_KEY!,
         }),
     )
-    .post('/login', async ({ body, set, jwt }) => {
+    .post('/login', async ({ body, set, jwt, headers: { host } }) => {
         try {
-            const user = await loginController(body as ILoginPayload, jwt, set);
+            const user = await loginController(body as ILoginPayload, jwt, set, host);
             return user;
         } catch (error) {
             return catchResponse(set, error as ICommonResponse);
@@ -52,9 +52,9 @@ const authRoute = new Elysia({
             return catchResponse(set, error as ICommonResponse);
         }
     })
-    .get('/me', async ({ cookie: { token }, jwt, set }) => {
+    .get('/me', async ({ cookie: { token }, jwt, set, headers: { host } }) => {
         try {
-            const res = await verifyAccountController(token.value, jwt);
+            const res = await verifyAccountController(token.value, jwt, host);
             return res;
         } catch (error) {
             return catchResponse(set, error as ICommonResponse);

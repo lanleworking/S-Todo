@@ -3,6 +3,7 @@ import { useMediaQuery } from '@mantine/hooks'
 import { MOBILE_MEDIAQUERY } from '@/constants/MediaQuery'
 import '@mantine/core/styles.css'
 import '@mantine/dates/styles.css'
+import '@mantine/tiptap/styles.css'
 
 function AppMantimeProvider({ children }: { children: React.ReactNode }) {
   const isMobile = useMediaQuery(MOBILE_MEDIAQUERY)
@@ -37,7 +38,11 @@ function AppMantimeProvider({ children }: { children: React.ReactNode }) {
     },
   })
 
-  return <MantineProvider theme={theme}>{children}</MantineProvider>
+  return (
+    <MantineProvider classNamesPrefix="mantine" theme={theme}>
+      {children}
+    </MantineProvider>
+  )
 }
 
 export default AppMantimeProvider

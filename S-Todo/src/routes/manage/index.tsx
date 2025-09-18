@@ -1,10 +1,17 @@
-import ManageTodo from '@/pages/manage'
-import { createFileRoute } from '@tanstack/react-router'
+import axiosClient from '@/config/axios'
+import { TodoListDrag } from '@/pages/manage/TodoListDrag'
+import { createFileRoute, useLoaderData } from '@tanstack/react-router'
 
 export const Route = createFileRoute('/manage/')({
+  loader: async () => {
+    const res = await axiosClient.get('/todo/all')
+    return res.data
+  },
   component: RouteComponent,
 })
 
 function RouteComponent() {
-  return <ManageTodo />
+  const manageTodoData = useLoaderData({ from: '/manage/' })
+
+  return <TodoListDrag manageTodoData={manageTodoData} />
 }

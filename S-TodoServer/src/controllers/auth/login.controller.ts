@@ -9,16 +9,18 @@ import { eq, or } from 'drizzle-orm';
 import { encodeOneWay, isMatchHash } from '../../utils/encode';
 import { setTokenCookie } from '../../utils/cookies';
 import { getTokenExpiry } from '../../utils/token';
+import { protocol } from '../../utils/http';
 
-const login = async (payload: ILoginPayload, jwt: IJWTService, set: any) => {
+const login = async (payload: ILoginPayload, jwt: IJWTService, set: any, host: string | undefined) => {
     if (isEmpty(payload) || !payload.username || !payload.password)
         throw throwResponse(EStatusCodes.BAD_REQUEST, EHttpCode.INVALID_PAYLOAD, 'Invalid Login Payload');
     const { password, username } = payload;
+    const usernameLower = username.toLowerCase();
 
     const [user] = await db
         .select()
         .from(users)
-        .where(or(eq(users.userId, username), eq(users.email, username)));
+        .where(or(eq(users.userId, usernameLower), eq(users.email, usernameLower)));
 
     if (!user) throw throwResponse(EStatusCodes.NOT_FOUND, EHttpCode.NOT_FOUND, 'Account not exist!');
 
@@ -32,6 +34,10 @@ const login = async (payload: ILoginPayload, jwt: IJWTService, set: any) => {
         role: user.role,
         expiredTime: expiryTimestamp,
     });
+
+    if (user.avatarUrl && host) {
+        user.avatarUrl = `${protocol}${host}/${user.avatarUrl}`;
+    }
 
     setTokenCookie(set, token, expiresInSec);
     const { password: _password, role, ...restData } = user;

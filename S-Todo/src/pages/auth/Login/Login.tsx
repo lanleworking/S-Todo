@@ -87,8 +87,11 @@ function Login() {
           placeholder={t('password')}
           leftSection={<FaKey />}
         />
-        <Box color={'var(--primary-color)'} fs={'0.8rem'} ta={'right'}>
+        <Box c={'var(--primary-color)'} fs={'0.8rem'} ta={'right'}>
           <Link
+            style={{
+              fontSize: '0.8rem',
+            }}
             disabled={isPending}
             to="/auth/reset-password"
             search={{

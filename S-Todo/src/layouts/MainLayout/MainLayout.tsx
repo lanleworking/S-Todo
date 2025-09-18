@@ -1,5 +1,5 @@
 import AppHeader from '@/components/Headers/AppHeader'
-import { AppShell } from '@mantine/core'
+import { AppShell, Box } from '@mantine/core'
 
 function MainLayout({ children }: { children: React.ReactNode }) {
   return (
@@ -11,7 +11,11 @@ function MainLayout({ children }: { children: React.ReactNode }) {
       <AppShell.Header>
         <AppHeader />
       </AppShell.Header>
-      <AppShell.Main>{children}</AppShell.Main>
+      <AppShell.Main>
+        <Box px={40} mt={20}>
+          {children}
+        </Box>
+      </AppShell.Main>
     </AppShell>
   )
 }

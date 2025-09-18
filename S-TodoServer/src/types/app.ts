@@ -13,3 +13,20 @@ export interface IUserJwt {
     role: number;
     expiredTime: number;
 }
+
+export enum ETodoStatus {
+    NEW = 'NEW',
+    DOING = 'DOING',
+    DONE = 'DONE',
+}
+
+export enum ETodoPriority {
+    LOW = 'LOW',
+    MEDIUM = 'MEDIUM',
+    HIGH = 'HIGH',
+}
+
+export enum ETodoType {
+    PERSONAL = 'PERSONAL',
+    FUND = 'FUND',
+}
