@@ -34,3 +34,35 @@ export interface IManageTodo {
 export interface IManageTodoData {
   manageTodoData: Record<string, IManageTodo>
 }
+
+export interface ITodo {
+  id: number
+  title: string
+  description: string
+  status: ETodoStatus
+  priority: ETodoPriority
+  type: string
+  endDate: string
+  shared: boolean
+  createdBy: string
+  createdAt: string
+}
+
+export interface ITodoData extends ITodo {
+  users?: ITodoItemUser[]
+  updatedAt?: string
+  startDate?: string
+  expectedAmount?: number
+}
+
+export interface ITodoItemUser {
+  userId: string
+  fullName?: string
+  email?: string
+  avatarUrl?: string
+}
+
+export interface ISelectOption {
+  label: string
+  value: string
+}

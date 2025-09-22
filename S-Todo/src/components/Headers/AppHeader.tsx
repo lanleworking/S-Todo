@@ -29,6 +29,10 @@ function AppHeader() {
 
   const links = [
     {
+      href: '/todo',
+      label: 'Todo List',
+    },
+    {
       href: '/manage',
       label: 'Manage Todo',
     },
@@ -41,13 +45,14 @@ function AppHeader() {
       </Link>
 
       {/* nav */}
-      <Flex>
+      <Flex gap={8}>
         {links.map((l, i) => (
           <NavLink
             component={Link}
             key={i}
             style={{
               borderRadius: '8px',
+              width: 'fit-content',
             }}
             to={l.href}
             label={l.label}

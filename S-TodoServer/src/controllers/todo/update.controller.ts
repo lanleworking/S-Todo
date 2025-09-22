@@ -3,7 +3,7 @@ import { db } from '../../drizzle/db';
 import { todoOrders, todos } from '../../drizzle/schema';
 import { TodoOrderType } from '../../drizzle/type';
 import { ETodoStatus } from '../../types/app';
-import getAll from './get-all.controller';
+import { getAllTodoController } from '..';
 
 export const updateManageTodo = async (payload: Record<string, TodoOrderType[]>, userId: string) => {
     const modifiedPayload = Object.keys(payload).reduce(
@@ -42,7 +42,7 @@ export const updateManageTodo = async (payload: Record<string, TodoOrderType[]>,
         }
     });
 
-    const data = await getAll(userId);
+    const data = await getAllTodoController.getAllOnwer(userId);
 
     return data;
 };

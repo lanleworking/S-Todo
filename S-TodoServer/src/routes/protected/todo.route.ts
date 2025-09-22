@@ -1,9 +1,15 @@
 import jwt from '@elysiajs/jwt';
-import Elysia from 'elysia';
-import { createTodoController, getAllTodoController, updateTodoController } from '../../controllers';
+import Elysia, { t } from 'elysia';
+import {
+    createTodoController,
+    deleteTodoController,
+    getAllTodoController,
+    updateTodoController,
+} from '../../controllers';
 import { catchResponse } from '../../utils/response';
 import { ICommonResponse } from '../../types/http';
 import { IUserJwt } from '../../types/app';
+import { getTodoById } from '../../controllers/todo/get.controller';
 
 const todoRoute = new Elysia({
     prefix: '/todo',
@@ -28,7 +34,7 @@ const todoRoute = new Elysia({
     })
     .get('/all', async ({ set, user }) => {
         try {
-            const res = await getAllTodoController(user.userId);
+            const res = await getAllTodoController.getAllOnwer(user.userId);
             return res;
         } catch (error) {
             return catchResponse(set, error as ICommonResponse);
@@ -37,6 +43,39 @@ const todoRoute = new Elysia({
     .put('/update/manage', async ({ body, set, user }) => {
         try {
             const res = await updateTodoController.updateManageTodo(body as any, user.userId);
+            return res;
+        } catch (error) {
+            return catchResponse(set, error as ICommonResponse);
+        }
+    })
+    .get('/list', async ({ set, user }) => {
+        try {
+            const res = await getAllTodoController.getListTodo(user.userId);
+            return res;
+        } catch (error) {
+            return catchResponse(set, error as ICommonResponse);
+        }
+    })
+    .delete(
+        '/delete',
+        async ({ body, set, user }) => {
+            try {
+                const res = await deleteTodoController(body.todoId, user.userId);
+                return res;
+            } catch (error) {
+                return catchResponse(set, error as ICommonResponse);
+            }
+        },
+        {
+            body: t.Object({
+                todoId: t.Array(t.Number()),
+            }),
+        },
+    )
+    .get('/:todoId', async ({ params, set, user }) => {
+        const { todoId } = params;
+        try {
+            const res = await getTodoById(Number(todoId), user.userId);
             return res;
         } catch (error) {
             return catchResponse(set, error as ICommonResponse);

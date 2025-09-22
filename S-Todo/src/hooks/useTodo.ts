@@ -1,5 +1,6 @@
 import axiosClient from '@/config/axios'
-import { useMutation } from '@tanstack/react-query'
+import type { IManageTodoData } from '@/constants/Data'
+import { useMutation, useQuery } from '@tanstack/react-query'
 
 function useTodo() {
   const createNewTodo = useMutation({
@@ -18,7 +19,33 @@ function useTodo() {
     },
   })
 
-  return { createNewTodo, updateTodoManage }
+  const deleteTodoMutation = useMutation({
+    mutationKey: ['deleteMutate'],
+    mutationFn: async (todoId: number[]) => {
+      const res = await axiosClient.delete('/todo/delete', {
+        data: {
+          todoId,
+        },
+      })
+      return res.data
+    },
+  })
+
+  const getAllOnwerTodo = useQuery<IManageTodoData>({
+    queryKey: ['getAllOnwerTodo'],
+    queryFn: async () => {
+      const res = await axiosClient.get('/todo/all')
+      return res.data
+    },
+    enabled: false,
+  })
+
+  return {
+    createNewTodo,
+    updateTodoManage,
+    deleteTodoMutation,
+    getAllOnwerTodo,
+  }
 }
 
 export default useTodo

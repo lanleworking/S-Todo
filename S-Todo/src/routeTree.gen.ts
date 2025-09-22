@@ -10,18 +10,26 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as NotFoundRouteImport } from './routes/not-found'
+import { Route as TodoRouteRouteImport } from './routes/todo.route'
 import { Route as ManageRouteRouteImport } from './routes/manage.route'
 import { Route as AuthRouteRouteImport } from './routes/auth.route'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as TodoIndexRouteImport } from './routes/todo/index'
 import { Route as ManageIndexRouteImport } from './routes/manage/index'
 import { Route as AuthResetPasswordRouteImport } from './routes/auth/reset-password'
 import { Route as AuthRegisterRouteImport } from './routes/auth/register'
 import { Route as AuthLoginRouteImport } from './routes/auth/login'
+import { Route as TodoIdIndexRouteImport } from './routes/todo/$id/index'
 import { Route as ManageCreateIndexRouteImport } from './routes/manage/create/index'
 
 const NotFoundRoute = NotFoundRouteImport.update({
   id: '/not-found',
   path: '/not-found',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const TodoRouteRoute = TodoRouteRouteImport.update({
+  id: '/todo',
+  path: '/todo',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ManageRouteRoute = ManageRouteRouteImport.update({
@@ -38,6 +46,11 @@ const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
+} as any)
+const TodoIndexRoute = TodoIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => TodoRouteRoute,
 } as any)
 const ManageIndexRoute = ManageIndexRouteImport.update({
   id: '/',
@@ -59,6 +72,11 @@ const AuthLoginRoute = AuthLoginRouteImport.update({
   path: '/login',
   getParentRoute: () => AuthRouteRoute,
 } as any)
+const TodoIdIndexRoute = TodoIdIndexRouteImport.update({
+  id: '/$id/',
+  path: '/$id/',
+  getParentRoute: () => TodoRouteRoute,
+} as any)
 const ManageCreateIndexRoute = ManageCreateIndexRouteImport.update({
   id: '/create/',
   path: '/create/',
@@ -69,12 +87,15 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/auth': typeof AuthRouteRouteWithChildren
   '/manage': typeof ManageRouteRouteWithChildren
+  '/todo': typeof TodoRouteRouteWithChildren
   '/not-found': typeof NotFoundRoute
   '/auth/login': typeof AuthLoginRoute
   '/auth/register': typeof AuthRegisterRoute
   '/auth/reset-password': typeof AuthResetPasswordRoute
   '/manage/': typeof ManageIndexRoute
+  '/todo/': typeof TodoIndexRoute
   '/manage/create': typeof ManageCreateIndexRoute
+  '/todo/$id': typeof TodoIdIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -84,19 +105,24 @@ export interface FileRoutesByTo {
   '/auth/register': typeof AuthRegisterRoute
   '/auth/reset-password': typeof AuthResetPasswordRoute
   '/manage': typeof ManageIndexRoute
+  '/todo': typeof TodoIndexRoute
   '/manage/create': typeof ManageCreateIndexRoute
+  '/todo/$id': typeof TodoIdIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/auth': typeof AuthRouteRouteWithChildren
   '/manage': typeof ManageRouteRouteWithChildren
+  '/todo': typeof TodoRouteRouteWithChildren
   '/not-found': typeof NotFoundRoute
   '/auth/login': typeof AuthLoginRoute
   '/auth/register': typeof AuthRegisterRoute
   '/auth/reset-password': typeof AuthResetPasswordRoute
   '/manage/': typeof ManageIndexRoute
+  '/todo/': typeof TodoIndexRoute
   '/manage/create/': typeof ManageCreateIndexRoute
+  '/todo/$id/': typeof TodoIdIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -104,12 +130,15 @@ export interface FileRouteTypes {
     | '/'
     | '/auth'
     | '/manage'
+    | '/todo'
     | '/not-found'
     | '/auth/login'
     | '/auth/register'
     | '/auth/reset-password'
     | '/manage/'
+    | '/todo/'
     | '/manage/create'
+    | '/todo/$id'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -119,24 +148,30 @@ export interface FileRouteTypes {
     | '/auth/register'
     | '/auth/reset-password'
     | '/manage'
+    | '/todo'
     | '/manage/create'
+    | '/todo/$id'
   id:
     | '__root__'
     | '/'
     | '/auth'
     | '/manage'
+    | '/todo'
     | '/not-found'
     | '/auth/login'
     | '/auth/register'
     | '/auth/reset-password'
     | '/manage/'
+    | '/todo/'
     | '/manage/create/'
+    | '/todo/$id/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AuthRouteRoute: typeof AuthRouteRouteWithChildren
   ManageRouteRoute: typeof ManageRouteRouteWithChildren
+  TodoRouteRoute: typeof TodoRouteRouteWithChildren
   NotFoundRoute: typeof NotFoundRoute
 }
 
@@ -147,6 +182,13 @@ declare module '@tanstack/react-router' {
       path: '/not-found'
       fullPath: '/not-found'
       preLoaderRoute: typeof NotFoundRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/todo': {
+      id: '/todo'
+      path: '/todo'
+      fullPath: '/todo'
+      preLoaderRoute: typeof TodoRouteRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/manage': {
@@ -169,6 +211,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/todo/': {
+      id: '/todo/'
+      path: '/'
+      fullPath: '/todo/'
+      preLoaderRoute: typeof TodoIndexRouteImport
+      parentRoute: typeof TodoRouteRoute
     }
     '/manage/': {
       id: '/manage/'
@@ -197,6 +246,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/auth/login'
       preLoaderRoute: typeof AuthLoginRouteImport
       parentRoute: typeof AuthRouteRoute
+    }
+    '/todo/$id/': {
+      id: '/todo/$id/'
+      path: '/$id'
+      fullPath: '/todo/$id'
+      preLoaderRoute: typeof TodoIdIndexRouteImport
+      parentRoute: typeof TodoRouteRoute
     }
     '/manage/create/': {
       id: '/manage/create/'
@@ -238,10 +294,25 @@ const ManageRouteRouteWithChildren = ManageRouteRoute._addFileChildren(
   ManageRouteRouteChildren,
 )
 
+interface TodoRouteRouteChildren {
+  TodoIndexRoute: typeof TodoIndexRoute
+  TodoIdIndexRoute: typeof TodoIdIndexRoute
+}
+
+const TodoRouteRouteChildren: TodoRouteRouteChildren = {
+  TodoIndexRoute: TodoIndexRoute,
+  TodoIdIndexRoute: TodoIdIndexRoute,
+}
+
+const TodoRouteRouteWithChildren = TodoRouteRoute._addFileChildren(
+  TodoRouteRouteChildren,
+)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthRouteRoute: AuthRouteRouteWithChildren,
   ManageRouteRoute: ManageRouteRouteWithChildren,
+  TodoRouteRoute: TodoRouteRouteWithChildren,
   NotFoundRoute: NotFoundRoute,
 }
 export const routeTree = rootRouteImport

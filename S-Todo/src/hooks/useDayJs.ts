@@ -12,6 +12,8 @@ function useDayJs() {
     getCurrentYear: () => dayjs().format('YYYY'),
     getCurrentTime: () => dayjs().format('HH:mm:ss'),
     formatDate: (date: string | Date) => dayjs(date).format('YYYY-MM-DD'),
+    formatDateTime: (date: string | Date) =>
+      dayjs(date).format('YYYY-MM-DD HH:mm:ss'),
     isToday: (date: string | Date) => dayjs(date).isSame(dayjs(), 'day'),
     addDays: (date: string | Date, days: number) =>
       dayjs(date).add(days, 'day'),

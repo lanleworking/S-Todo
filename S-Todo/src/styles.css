@@ -38,17 +38,6 @@
   --primary-color: #49b8d8;
   --auth-input-bg-color: #ffffff52;
   --border-color: #8080805c;
-  --status-done-bg-color: rgb(209 250 229 / 0.7);
-  --status-priority-bg-color: rgb(255 228 230 / 0.7);
-  --status-new-bg-color: #e5e7eb;
-  --status-doing-bg-color: rgb(254 243 199 / 0.7);
-  --tw-border-opacity: 1;
-  --status-new-border-color: rgb(202 202 202 / var(--tw-border-opacity, 1));
-  --status-priority-border-color: rgb(
-    252 165 172 / var(--tw-border-opacity, 1)
-  );
-  --status-done-border-color: rgb(167 243 208 / var(--tw-border-opacity, 1));
-  --status-doing-border-color: rgb(253 230 138 / var(--tw-border-opacity, 1));
 }
 
 html {
@@ -76,24 +65,19 @@ ol {
 }
 
 .done {
-  background-color: var(--status-done-bg-color);
-  border-color: var(--status-done-border-color);
+  @apply bg-green-100 border-green-300 text-green-400;
 }
 
 .new {
-  background-color: var(--status-new-bg-color);
-  border-color: var(--status-new-border-color);
+  @apply bg-gray-100 border-gray-300 text-gray-400;
 }
 
 .priority {
-  background-color: var(--status-priority-bg-color);
-  border-color: var(--status-priority-border-color);
+  @apply bg-rose-100 border-rose-300 text-rose-400;
 }
 
 .doing {
-  background-color: var(--status-doing-bg-color);
-  border: 1px solid;
-  border-color: var(--status-doing-border-color);
+  @apply bg-yellow-100 border-yellow-300 text-yellow-400;
 }
 
 .recharts-wrapper :focus {

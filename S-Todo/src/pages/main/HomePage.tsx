@@ -223,32 +223,9 @@ function HomePage() {
       {/* Overview */}
       <Box mt={20} pt={20} className={clsx(styles.borderTop)}>
         <Grid gutter={0}>
-          <Grid.Col className={clsx(styles.leftGrid)} h={200} span={6}>
-            <Title order={3}>Ovewview</Title>
-            <ResponsiveContainer width={'100%'} height={'100%'}>
-              <PieChart>
-                <Pie
-                  label={renderCustomizedLabel}
-                  labelLine={false}
-                  cx="50%"
-                  cy="50%"
-                  outerRadius={80}
-                  data={data}
-                >
-                  {data.map((entry, index) => (
-                    <Cell
-                      key={`cell-${entry.name}`}
-                      fill={COLORS[index % COLORS.length]}
-                    />
-                  ))}
-                </Pie>
-                <Tooltip />
-              </PieChart>
-            </ResponsiveContainer>
-          </Grid.Col>
-          <Grid.Col span={6}>
+          <Grid.Col span={12}>
             <Title pl={12} order={3}>
-              Status
+              Overview
             </Title>
             <Center>
               <BarChart width={400} height={240} data={barData}>

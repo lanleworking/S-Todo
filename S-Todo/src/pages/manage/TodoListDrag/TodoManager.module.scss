@@ -21,38 +21,19 @@ $border-radius: 12px;
   padding: 16px;
 
   &.new,
-  &.doing,
   &.done,
-  &.priority {
-    border: 1px solid;
-  }
-
   &.doing {
-    background-color: rgb(255 251 235 / var(--tw-bg-opacity, 1));
-    border-color: var(--status-doing-border-color);
+    border: 1px solid var(--border-color);
   }
 
   &.new {
-    background-color: rgb(255 255 255 / 0.8);
-    border-color: var(--status-new-border-color);
+    background-color: white;
   }
 
-  &.done {
-    background-color: rgb(236 253 245 / var(--tw-bg-opacity, 1));
-    border-color: var(--status-done-border-color);
+  &.done,
+  &.doing {
+    background-color: #ffffff54;
   }
-}
-
-.done {
-  border-bottom: 1px solid var(--status-done-border-color);
-}
-
-.doing {
-  border-bottom: 1px solid var(--status-doing-border-color);
-}
-
-.new {
-  border-bottom: 1px solid var(--status-new-border-color);
 }
 
 .priority,

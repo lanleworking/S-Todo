@@ -5,8 +5,6 @@ import {
   type DropResult,
 } from '@hello-pangea/dnd'
 import {
-  ActionIcon,
-  Affix,
   Badge,
   Box,
   Button,
@@ -18,20 +16,20 @@ import {
   Stack,
   Text,
   Title,
-  Tooltip,
 } from '@mantine/core'
 import { useEffect, useState } from 'react'
 import styles from './TodoManager.module.scss'
 import clsx from 'clsx'
 import { CiTimer } from 'react-icons/ci'
-import { FaPlus } from 'react-icons/fa6'
 import useDayJs from '@/hooks/useDayJs'
-import { isEmpty } from 'lodash'
+import { isEmpty, isObject } from 'lodash'
 import { useDisclosure } from '@mantine/hooks'
-import { useNavigate } from '@tanstack/react-router'
 import type { IManageTodo, IManageTodoData } from '@/constants/Data'
 import useTodo from '@/hooks/useTodo'
 import { fetchError } from '@/utils/toast/fetchError'
+import toast from 'react-hot-toast'
+import { CreateNewTodoBtn } from '@/components/Buttons/CreateNewTodoBtn'
+import { swichPriorityColor } from '@/utils/checkers/priority'
 
 type ManageTodoProps = {
   manageTodoData: IManageTodoData
@@ -39,25 +37,38 @@ type ManageTodoProps = {
 
 function ManageTodo({ manageTodoData }: ManageTodoProps) {
   const [columns, setColumns] = useState<IManageTodoData>(manageTodoData)
-  const [checkedItems, setCheckedItems] = useState<string[]>([])
-  const navigate = useNavigate()
+  const [checkedItems, setCheckedItems] = useState<number[]>([])
   const { fromNow, isAfter } = useDayJs()
-  const { updateTodoManage } = useTodo()
+  const { updateTodoManage, deleteTodoMutation, getAllOnwerTodo } = useTodo()
   const [
     openedConfirmDeleteModal,
     { open: openConfirmDeleteModal, close: closeConfirmDeleteModal },
   ] = useDisclosure(false)
 
+  const { data: allOwnerTodoData, refetch: refetchAllOwnerTodo } =
+    getAllOnwerTodo
+  const { mutate: deleteTodoMutate, isPending: isDeleting } = deleteTodoMutation
   const { mutate, isPending } = updateTodoManage
 
+  // handlers
   const reassignOrder = (items: IManageTodo[]) =>
     items.map((item, idx) => ({
       ...item,
       order: idx + 1,
     }))
 
+  const handleDelete = () => {
+    deleteTodoMutate(checkedItems, {
+      onSuccess: () => {
+        toast.success(`✅ - Delete Success`)
+        refetchAllOwnerTodo()
+        closeConfirmDeleteModal()
+        setCheckedItems([])
+      },
+    })
+  }
+
   const onDragEnd = (result: DropResult) => {
-    console.log(result)
     const { source, destination } = result
     if (!destination) return
 
@@ -99,31 +110,23 @@ function ManageTodo({ manageTodoData }: ManageTodoProps) {
     })
   }
 
+  // effect
   useEffect(() => {
     mutate(columns, {
       onError: (error) => fetchError(error),
     })
   }, [columns])
 
+  useEffect(() => {
+    if (isObject(allOwnerTodoData)) {
+      setColumns(allOwnerTodoData)
+    }
+  }, [allOwnerTodoData])
+
   return (
     <>
       {/* new */}
-      <Affix position={{ bottom: 20, right: 20 }}>
-        <Tooltip label="Add New Todo" withArrow>
-          <ActionIcon
-            onClick={() =>
-              navigate({
-                to: '/manage/create',
-              })
-            }
-            radius={'lg'}
-            size={'lg'}
-          >
-            <FaPlus />
-          </ActionIcon>
-        </Tooltip>
-      </Affix>
-
+      <CreateNewTodoBtn />
       {/* alert delete */}
       <Modal
         centered
@@ -135,10 +138,16 @@ function ManageTodo({ manageTodoData }: ManageTodoProps) {
           Are you sure you want to delete these {checkedItems.length} items?
         </Text>
         <Group justify="end" align="center">
-          <Button variant="default" onClick={closeConfirmDeleteModal}>
+          <Button
+            disabled={isDeleting}
+            variant="default"
+            onClick={closeConfirmDeleteModal}
+          >
             Cancel
           </Button>
-          <Button color="red">Delete</Button>
+          <Button onClick={handleDelete} loading={isDeleting} color="red">
+            Delete
+          </Button>
         </Group>
       </Modal>
 
@@ -222,29 +231,26 @@ function ManageTodo({ manageTodoData }: ManageTodoProps) {
                                   <Checkbox
                                     name={String(t.id)}
                                     onChange={(e) => {
-                                      const { checked, name } = e.target
+                                      const { checked } = e.target
                                       if (checked) {
                                         setCheckedItems((prev) => [
                                           ...prev,
-                                          name,
+                                          t.id,
                                         ])
                                       } else {
                                         setCheckedItems((prev) =>
-                                          prev.filter((item) => item !== name),
+                                          prev.filter((item) => item !== t.id),
                                         )
                                       }
                                     }}
-                                    checked={checkedItems.includes(
-                                      String(t.id),
-                                    )}
+                                    checked={checkedItems.includes(t.id)}
                                   />
                                   <Title order={4}>{t.title}</Title>
                                 </Flex>
                                 <Badge
-                                  className={clsx(
-                                    '!bg-rose-100',
-                                    '!text-rose-700',
-                                  )}
+                                  variant="light"
+                                  bd="1px solid"
+                                  color={swichPriorityColor(t.priority)}
                                 >
                                   {t.priority}
                                 </Badge>

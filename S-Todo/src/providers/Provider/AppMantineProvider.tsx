@@ -39,7 +39,11 @@ function AppMantimeProvider({ children }: { children: React.ReactNode }) {
   })
 
   return (
-    <MantineProvider classNamesPrefix="mantine" theme={theme}>
+    <MantineProvider
+      // defaultColorScheme="dark"
+      classNamesPrefix="mantine"
+      theme={theme}
+    >
       {children}
     </MantineProvider>
   )

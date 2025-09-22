@@ -1,6 +1,6 @@
 import { desc, eq } from 'drizzle-orm';
 import { db } from '../../drizzle/db';
-import { todoOrders, todos } from '../../drizzle/schema';
+import { todoOrders, todos, todoUsers } from '../../drizzle/schema';
 import { NewTodoType, TodoOrderType, TodoType } from '../../drizzle/type';
 import { EHttpCode, EStatusCodes, ICommonResponse } from '../../types/http';
 import { throwResponse } from '../../utils/response';
@@ -10,7 +10,16 @@ type CreateTodoResponseType = ICommonResponse & {
     data: TodoType & TodoOrderType;
 };
 
-async function create(payload: NewTodoType, userId: string): Promise<CreateTodoResponseType> {
+async function create(
+    payload: NewTodoType & {
+        sharedWith?: string[];
+    },
+    userId: string,
+): Promise<CreateTodoResponseType> {
+    // Determine users to share the todo with
+    const todoUsersToInsert = payload?.shared && payload.sharedWith ? [...payload.sharedWith, userId] : [userId];
+
+    // Validation
     if (!payload.title || !payload.type || !userId)
         throw throwResponse(EStatusCodes.BAD_REQUEST, EHttpCode.INVALID_PAYLOAD, 'Invalid Payload');
     if (payload?.startDate && payload?.endDate && new Date(payload.startDate) > new Date(payload.endDate))
@@ -19,6 +28,8 @@ async function create(payload: NewTodoType, userId: string): Promise<CreateTodoR
             EHttpCode.INVALID_PAYLOAD,
             'Start date cannot be greater than end date',
         );
+
+    // Ensure dates are either Date objects or null
     const processedPayload = {
         ...payload,
         startDate: payload.startDate ? new Date(payload.startDate) : null,
@@ -26,13 +37,14 @@ async function create(payload: NewTodoType, userId: string): Promise<CreateTodoR
         createdby: userId,
     };
 
+    // Create the todo
     const [lastestNewTodo] = await db
         .select({
             order: todoOrders.order,
         })
         .from(todos)
         .innerJoin(todoOrders, eq(todos.id, todoOrders.todoId))
-        .where(eq(todos.status, ETodoStatus.NEW))
+        .where(eq(todos.status, payload.status || ETodoStatus.NEW))
         .orderBy(desc(todoOrders.order))
         .limit(1);
 
@@ -44,6 +56,13 @@ async function create(payload: NewTodoType, userId: string): Promise<CreateTodoR
             todoId: newTodo.id,
         })
         .returning();
+
+    await db.insert(todoUsers).values(
+        todoUsersToInsert.map((userId) => ({
+            todoId: newTodo.id,
+            userId,
+        })),
+    );
 
     return {
         status: EStatusCodes.CREATED,

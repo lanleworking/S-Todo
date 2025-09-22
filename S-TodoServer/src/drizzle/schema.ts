@@ -1,4 +1,4 @@
-import { integer, pgTable, timestamp, varchar, serial, text } from 'drizzle-orm/pg-core';
+import { integer, pgTable, timestamp, varchar, serial, text, boolean } from 'drizzle-orm/pg-core';
 import { ETodoPriority, ETodoStatus, ETodoType, EUserRole } from '../types/app';
 
 export const users = pgTable('users', {
@@ -16,8 +16,8 @@ export const users = pgTable('users', {
     }).notNull(),
     avatarUrl: varchar('avatar_url', { length: 255 }),
     role: integer('role').default(EUserRole.USER),
-    createdAt: timestamp('created_at').defaultNow().notNull(),
-    updatedAt: timestamp('updated_at').defaultNow().notNull(),
+    createdAt: timestamp('created_at', { mode: 'string' }).defaultNow().notNull(),
+    updatedAt: timestamp('updated_at', { mode: 'string' }).defaultNow().notNull(),
 });
 
 export const todos = pgTable('todos', {
@@ -39,10 +39,11 @@ export const todos = pgTable('todos', {
     }).default(ETodoPriority.LOW),
     type: varchar('type', { length: 50, enum: [ETodoType.PERSONAL, ETodoType.FUND] }).notNull(),
     expectedAmount: integer('expected_amount'),
-    startDate: timestamp('start_date'),
-    endDate: timestamp('end_date'),
-    createdAt: timestamp('created_at').defaultNow(),
-    updatedAt: timestamp('updated_at').defaultNow(),
+    shared: boolean('shared').default(false),
+    startDate: timestamp('start_date', { mode: 'string' }),
+    endDate: timestamp('end_date', { mode: 'string' }),
+    createdAt: timestamp('created_at', { mode: 'string' }).defaultNow(),
+    updatedAt: timestamp('updated_at', { mode: 'string' }).defaultNow(),
 });
 
 export const todoUsers = pgTable('todo_users', {
@@ -53,7 +54,7 @@ export const todoUsers = pgTable('todo_users', {
     userId: varchar('user_id', { length: 50 })
         .notNull()
         .references(() => users.userId, { onDelete: 'cascade', onUpdate: 'cascade' }),
-    assignedAt: timestamp('assigned_at').defaultNow().notNull(),
+    assignedAt: timestamp('assigned_at', { mode: 'string' }).defaultNow().notNull(),
 });
 
 export const todoLogs = pgTable('todo_logs', {
@@ -66,7 +67,7 @@ export const todoLogs = pgTable('todo_logs', {
     performedBy: varchar('performed_by', { length: 50 })
         .notNull()
         .references(() => users.userId, { onDelete: 'cascade', onUpdate: 'cascade' }),
-    performedAt: timestamp('performed_at').defaultNow(),
+    performedAt: timestamp('performed_at', { mode: 'string' }).defaultNow(),
 });
 
 export const priorityLevels = pgTable('priority_levels', {

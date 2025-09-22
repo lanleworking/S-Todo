@@ -30,3 +30,8 @@ export enum ETodoType {
     PERSONAL = 'PERSONAL',
     FUND = 'FUND',
 }
+
+export interface ISelectRes {
+    value: string;
+    label: string | null;
+}

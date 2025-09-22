@@ -1,7 +1,13 @@
+import { CancelBtn } from '@/components/Buttons/CancelBtn'
 import { RichTextEditor } from '@/components/RichTextEditor'
 import { TitleWithReturn } from '@/components/TitleWithReturn'
-import { ETodoPriority, ETodoStatus } from '@/constants/Data'
+import {
+  ETodoPriority,
+  ETodoStatus,
+  type ISelectOption,
+} from '@/constants/Data'
 import useTodo from '@/hooks/useTodo'
+import { AuthContext } from '@/providers/Context/AuthContext'
 import { fetchError } from '@/utils/toast/fetchError'
 import { validateForm } from '@/utils/validate/validateForm'
 import {
@@ -11,36 +17,50 @@ import {
   Flex,
   Grid,
   Group,
+  MultiSelect,
   NumberInput,
+  Radio,
+  RadioGroup,
   Select,
   Stack,
   Switch,
   Text,
-  Textarea,
   TextInput,
   Title,
 } from '@mantine/core'
 import { DatePickerInput } from '@mantine/dates'
 import { useForm } from '@mantine/form'
-import { useNavigate } from '@tanstack/react-router'
-import { useEffect, useState } from 'react'
+import { useNavigate, useRouter } from '@tanstack/react-router'
+import { use, useContext, useEffect, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { CiCalendarDate, CiMoneyBill, CiText } from 'react-icons/ci'
-import { IoMdNotificationsOutline } from 'react-icons/io'
-import { LuListTodo } from 'react-icons/lu'
+import { FiUsers } from 'react-icons/fi'
+import { LuListTodo, LuUserSearch } from 'react-icons/lu'
 import {
   MdAttachMoney,
   MdOutlineDescription,
-  MdOutlineEditNotifications,
   MdOutlineLowPriority,
 } from 'react-icons/md'
 
-function CreateTodo() {
+type CreateTodoProps = {
+  userOptionsData: ISelectOption[]
+}
+
+function CreateTodo({ userOptionsData }: CreateTodoProps) {
   const [descValue, setDescValue] = useState<string>('')
   const navigate = useNavigate()
+  const router = useRouter()
   const { t } = useTranslation()
+  const { user } = useContext(AuthContext)
   const { createNewTodo } = useTodo()
   const { mutate: mutateNewTodo, isPending: isCreating } = createNewTodo
+
+  const userOptions = useMemo(() => {
+    const filterOwner = userOptionsData.filter((u) => u.value !== user?.userId)
+    return filterOwner
+  }, [userOptionsData, user?.userId])
+
+  const pathName = router.history.location.pathname
   const {
     getValues,
     onSubmit,
@@ -60,6 +80,9 @@ function CreateTodo() {
       type: '',
       expectedAmount: 0,
       description: '',
+      status: ETodoStatus.NEW,
+      shared: false,
+      sharedWith: [] as string[],
     },
     validate: {
       title: (value) =>
@@ -83,17 +106,22 @@ function CreateTodo() {
     const modifiedFormData = {
       ...formData,
       description: descValue,
+      sharedWith: formData.shared ? formData.sharedWith : [],
     }
 
     mutateNewTodo(modifiedFormData, {
       onSuccess: () => {
-        navigate({ to: '/manage' })
+        navigate({
+          to: pathName.includes('manage') ? '/manage' : '/todo',
+          reloadDocument: true,
+        })
       },
       onError: (error) => fetchError(error),
     })
   }
 
   useEffect(() => {
+    document.title = 'Create New Todo | S-Todo'
     return () => {
       reset()
     }
@@ -101,14 +129,20 @@ function CreateTodo() {
 
   return (
     <>
-      <TitleWithReturn title="Create New Todo" />
+      <TitleWithReturn
+        titleProps={{
+          order: 3,
+        }}
+        title="Create New Todo"
+      />
       <form
         onSubmit={onSubmit(handleSubmit)}
         style={{ marginTop: 20, position: 'relative' }}
       >
         <Grid>
-          <Grid.Col span={12}>
+          <Grid.Col span={6}>
             <TextInput
+              description={'Max characters: 100'}
               key={key('title')}
               {...getInputProps('title')}
               withAsterisk
@@ -116,6 +150,27 @@ function CreateTodo() {
               placeholder="Finish homework ..."
               leftSection={<CiText />}
             />
+          </Grid.Col>
+
+          <Grid.Col span={6}>
+            <RadioGroup
+              label="Status "
+              title="Status"
+              withAsterisk
+              name="status"
+              key={key('status')}
+              {...getInputProps('status')}
+            >
+              <Flex mt={20} gap={40} justify={'center'} align={'center'}>
+                <Radio value={ETodoStatus.NEW} label="New" />
+                <Radio
+                  color={'yellow'}
+                  value={ETodoStatus.DOING}
+                  label="In Progress"
+                />
+                <Radio color={'green'} value={ETodoStatus.DONE} label="Done" />
+              </Flex>
+            </RadioGroup>
           </Grid.Col>
 
           <Grid.Col span={6}>
@@ -315,6 +370,51 @@ function CreateTodo() {
               </Card>
             </Stack>
           </Grid.Col> */}
+          <Grid.Col span={12}>
+            <Title order={3}>Advance Setting</Title>
+            <Card
+              styles={{
+                root: {
+                  backgroundColor: '#8080801c',
+                },
+              }}
+            >
+              <Stack gap={'sm'}>
+                <Switch
+                  key={key('shared')}
+                  {...getInputProps('shared')}
+                  styles={{
+                    labelWrapper: {
+                      flex: 1,
+                    },
+                  }}
+                  labelPosition="left"
+                  description="Share this todo with others?"
+                  label={
+                    <Flex align={'center'} gap={8}>
+                      <FiUsers />
+                      <Text>Share?</Text>
+                    </Flex>
+                  }
+                />
+                {getValues().shared && (
+                  <MultiSelect
+                    searchable
+                    clearable
+                    key={key('sharedWith')}
+                    {...getInputProps('sharedWith')}
+                    data={userOptions}
+                    leftSection={<LuUserSearch />}
+                    placeholder={
+                      getValues().sharedWith?.length
+                        ? ''
+                        : 'Select users to share'
+                    }
+                  />
+                )}
+              </Stack>
+            </Card>
+          </Grid.Col>
         </Grid>
 
         <Stack
@@ -334,7 +434,7 @@ function CreateTodo() {
             mb={20}
             justify="end"
           >
-            <Button variant="default">Cancel</Button>
+            <CancelBtn text="Cancel" />
             <Button loading={isCreating} disabled={!isDirty()} type="submit">
               Create Todo
             </Button>
