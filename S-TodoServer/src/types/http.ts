@@ -19,6 +19,7 @@ export enum EHttpCode {
     DELETE_ERROR = 'DELETE_ERROR',
     AUTHORIZED = 'AUTHORIZED',
     LOG_OUT = 'LOG_OUT',
+    SERVER_ERROR = 'SERVER_ERROR',
 }
 
 export interface ICommonResponse {

@@ -63,7 +63,8 @@ export const todoLogs = pgTable('todo_logs', {
         .notNull()
         .references(() => todos.id, { onDelete: 'cascade', onUpdate: 'cascade' }),
     action: varchar('action', { length: 50 }).notNull(), // "Created", "Updated", "Deleted", etc.
-    details: varchar('details', { length: 500 }), // Optional field for more info
+    details: varchar('details', { length: 500 }),
+    amount: integer('amount'),
     performedBy: varchar('performed_by', { length: 50 })
         .notNull()
         .references(() => users.userId, { onDelete: 'cascade', onUpdate: 'cascade' }),

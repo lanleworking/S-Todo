@@ -16,6 +16,8 @@
     "minLength": "Độ dài tối thiểu là {{min}} ký tự",
     "maxLength": "Độ dài tối đa là {{max}} ký tự",
     "invalidFormat": "Định dạng không hợp lệ",
-    "invalidNonWhiteSpace": "Không được chứa khoảng trắng"
+    "invalidNonWhiteSpace": "Không được chứa khoảng trắng",
+    "minValue": "Giá trị tối thiểu là {{min}}",
+    "maxValue": "Giá trị tối đa là {{max}}"
   }
 }

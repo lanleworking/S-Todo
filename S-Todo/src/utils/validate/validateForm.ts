@@ -11,6 +11,8 @@ type ValidateOptionsType = {
   pattern?: RegExp
   isEmail?: boolean
   isNonWhitespace?: boolean
+  min?: number
+  max?: number
 }
 
 export const validateForm = (
@@ -23,6 +25,8 @@ export const validateForm = (
     pattern,
     isEmail,
     isNonWhitespace,
+    min,
+    max,
   }: ValidateOptionsType = {},
 ) => {
   const valueTrim = String(value || '').trim()
@@ -51,6 +55,12 @@ export const validateForm = (
   }
   if (valueTrim && pattern && !pattern.test(valueTrim)) {
     return t('error.invalidFormat') || 'Invalid format'
+  }
+  if (valueTrim && min !== undefined && Number(valueTrim) < min) {
+    return t('error.minValue', { min }) || `Minimum value is ${min}`
+  }
+  if (valueTrim && max !== undefined && Number(valueTrim) > max) {
+    return t('error.maxValue', { max }) || `Maximum value is ${max}`
   }
   return null
 }
