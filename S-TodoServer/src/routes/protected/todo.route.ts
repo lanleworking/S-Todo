@@ -9,7 +9,6 @@ import {
 import { catchResponse } from '../../utils/response';
 import { ICommonResponse } from '../../types/http';
 import { IUserJwt } from '../../types/app';
-import { getTodoById } from '../../controllers/todo/get.controller';
 
 const todoRoute = new Elysia({
     prefix: '/todo',
@@ -75,7 +74,35 @@ const todoRoute = new Elysia({
     .get('/:todoId', async ({ params, set, user }) => {
         const { todoId } = params;
         try {
-            const res = await getTodoById(Number(todoId), user.userId);
+            const res = await getAllTodoController.getTodoById(Number(todoId), user.userId);
+            return res;
+        } catch (error) {
+            return catchResponse(set, error as ICommonResponse);
+        }
+    })
+    .get('/payment-log/:todoId', async ({ params, query, set }) => {
+        try {
+            const res = await getAllTodoController.paymentLogsData({
+                limit: query.limit ? Number(query.limit) : 5,
+                page: query.page ? Number(query.page) : 1,
+                todoId: Number(params.todoId),
+            });
+            return res;
+        } catch (error) {
+            return catchResponse(set, error as ICommonResponse);
+        }
+    })
+    .get('/recent', async ({ set, user }) => {
+        try {
+            const res = await getAllTodoController.getRecentTodo(user.userId);
+            return res;
+        } catch (error) {
+            return catchResponse(set, error as ICommonResponse);
+        }
+    })
+    .get('/barChartData', async ({ set, user }) => {
+        try {
+            const res = await getAllTodoController.getBarChartStatusData(user.userId);
             return res;
         } catch (error) {
             return catchResponse(set, error as ICommonResponse);

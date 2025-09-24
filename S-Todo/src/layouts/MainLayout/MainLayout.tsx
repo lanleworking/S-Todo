@@ -12,7 +12,7 @@ function MainLayout({ children }: { children: React.ReactNode }) {
         <AppHeader />
       </AppShell.Header>
       <AppShell.Main>
-        <Box px={40} mt={20}>
+        <Box px={{ base: 20, sm: 40 }} mt={20}>
           {children}
         </Box>
       </AppShell.Main>

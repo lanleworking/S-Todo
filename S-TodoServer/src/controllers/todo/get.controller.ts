@@ -1,6 +1,6 @@
-import { and, desc, eq, or } from 'drizzle-orm';
+import { and, desc, eq, isNotNull, or, sql, sum } from 'drizzle-orm';
 import { db } from '../../drizzle/db';
-import { todoOrders, todos, todoUsers, users } from '../../drizzle/schema';
+import { paymentLogs, todoOrders, todos, todoUsers, users } from '../../drizzle/schema';
 import { EHttpCode, EStatusCodes } from '../../types/http';
 import { throwResponse } from '../../utils/response';
 import { TodoType } from '../../drizzle/type';
@@ -55,9 +55,13 @@ const getListTodo = async (userId: string) => {
             type: todos.type,
             createdAt: todos.createdAt,
             startDate: todos.startDate,
+            shortDescription: todos.shortDescription,
+            avatarUrl: users.avatarUrl,
+            fullName: users.fullName || users.userId,
         })
         .from(todoUsers)
         .innerJoin(todos, and(eq(todoUsers.todoId, todos.id), and(eq(todoUsers.userId, userId))))
+        .innerJoin(users, eq(todos.createdby, users.userId))
         .orderBy(desc(todoUsers.assignedAt), desc(todos.createdAt));
 
     return allUserTodos;
@@ -74,6 +78,7 @@ const getTodoById = async (
             fullName: string | null;
             avatarUrl: string | null;
         }[];
+        totalAmount: number;
     }
 > => {
     if (!userId) throw throwResponse(EStatusCodes.FORBIDDEN, EHttpCode.INVALID_PAYLOAD, 'Invalid User');
@@ -92,10 +97,98 @@ const getTodoById = async (
         .from(users)
         .innerJoin(todoUsers, and(eq(users.userId, todoUsers.userId), and(eq(todoUsers.todoId, todoId))));
 
+    // total amount
+    const total = await db
+        .select({
+            totalAmount: sql<number>`sum(${paymentLogs.amount})`,
+        })
+        .from(paymentLogs)
+        .where(eq(paymentLogs.todoId, todoId));
+
     return {
         ...todo,
         users: userInTodo,
+        totalAmount: total[0]?.totalAmount ?? 0,
     };
 };
 
-export { getAllOnwer, getListTodo, getTodoById };
+export const paymentLogsData = async (payload: { todoId: number; limit: number; page: number }) => {
+    if (!payload.todoId) throw throwResponse(EStatusCodes.BAD_REQUEST, EHttpCode.INVALID_PAYLOAD, 'Invalid Todo');
+    const { todoId, limit, page } = payload;
+    const offset = (page - 1) * limit;
+
+    const paymentLogData = await db
+        .select({
+            id: paymentLogs.id,
+            amount: paymentLogs.amount,
+            status: paymentLogs.status,
+            note: paymentLogs.note,
+            createdBy: paymentLogs.createdBy,
+            createdAt: paymentLogs.createdAt,
+            updatedAt: paymentLogs.updatedAt,
+            fullName: users.fullName,
+            userId: users.userId,
+            avatarUrl: users.avatarUrl,
+        })
+        .from(paymentLogs)
+        .innerJoin(users, eq(paymentLogs.createdBy, users.userId))
+        .where(and(eq(paymentLogs.todoId, todoId), isNotNull(users.userId)))
+        .limit(limit)
+        .offset(offset);
+
+    return {
+        data: paymentLogData,
+        pagination: {
+            page,
+            limit,
+            total: paymentLogData.length,
+            totalPage: Math.ceil(paymentLogData.length / limit),
+        },
+    };
+};
+
+const getRecentTodo = async (userId: string) => {
+    if (!userId) throw throwResponse(EStatusCodes.FORBIDDEN, EHttpCode.INVALID_PAYLOAD, 'Invalid User');
+    const allUserRecentTodos = await db
+        .select({
+            shared: todos.shared,
+            id: todos.id,
+            title: todos.title,
+            description: todos.description,
+            status: todos.status,
+            priority: todos.priority,
+            endDate: todos.endDate,
+            createdBy: todos.createdby,
+            type: todos.type,
+            createdAt: todos.createdAt,
+            startDate: todos.startDate,
+            shortDescription: todos.shortDescription,
+            avatarUrl: users.avatarUrl,
+            fullName: users.fullName || users.userId,
+        })
+        .from(todoUsers)
+        .innerJoin(todos, and(eq(todoUsers.todoId, todos.id), and(eq(todoUsers.userId, userId))))
+        .innerJoin(users, eq(todos.createdby, users.userId))
+        .orderBy(desc(todoUsers.assignedAt), desc(todos.createdAt))
+        .limit(4);
+
+    return allUserRecentTodos;
+};
+
+const getBarChartStatusData = async (userId: string) => {
+    if (!userId) throw throwResponse(EStatusCodes.FORBIDDEN, EHttpCode.INVALID_PAYLOAD, 'Invalid User');
+
+    const statusData = await db
+        .select({
+            status: todos.status,
+            amount: sql<number>`count(*)`,
+        })
+        .from(todoUsers)
+        .innerJoin(todos, eq(todoUsers.todoId, todos.id))
+        .where(eq(todoUsers.userId, userId))
+        .groupBy(todos.status);
+
+    return statusData;
+};
+
+export { getAllOnwer, getListTodo, getTodoById, getRecentTodo, getBarChartStatusData };

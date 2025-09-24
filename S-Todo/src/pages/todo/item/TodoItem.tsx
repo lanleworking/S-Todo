@@ -1,7 +1,8 @@
 import PaymentModal from '@/components/Modal/PaymentModal'
 import { TitleWithReturn } from '@/components/TitleWithReturn'
-import type { ITodoData } from '@/constants/Data'
+import type { ITodoData, ITodoPaymentPayload } from '@/constants/Data'
 import useDayJs from '@/hooks/useDayJs'
+import useTodo from '@/hooks/useTodo'
 import {
   swichPriorityColor,
   switchStatusColor,
@@ -9,7 +10,6 @@ import {
 import {
   Avatar,
   Badge,
-  Box,
   Button,
   Card,
   Center,
@@ -21,35 +21,76 @@ import {
   Progress,
   Stack,
   Table,
+  TableScrollContainer,
   Text,
   Tooltip,
   Typography,
 } from '@mantine/core'
 import { useDisclosure } from '@mantine/hooks'
-import { useEffect } from 'react'
-import { FaDonate, FaHistory } from 'react-icons/fa'
+import { useEffect, useState } from 'react'
+import { FaDonate, FaHistory, FaPencilAlt } from 'react-icons/fa'
+import { FaUserGroup } from 'react-icons/fa6'
 import { MdAttachMoney } from 'react-icons/md'
+import { HiOutlineInformationCircle } from 'react-icons/hi'
+import { isEmpty } from 'lodash'
+import { Empty } from 'antd'
+import AnimatedNumber from '@/components/Animate/AnimatedNumber'
 
 type TodoItemProps = {
   data: ITodoData
 }
 
 function TodoItem({ data }: TodoItemProps) {
+  const [todoData, setTodoData] = useState<ITodoData>(data)
+  const [filterPayload, setFilterPayload] = useState<ITodoPaymentPayload>({
+    todoId: data.id,
+    limit: 5,
+    page: 1,
+  })
+  const SERVER_URL = import.meta.env.VITE_API_URL
+  const { users } = todoData
+  const { getPaymentLogs, getTodoById } = useTodo()
+  const { formatDateTime, fromNow, isAfter } = useDayJs()
   const [
     openedPaymentModal,
     { open: openPaymentModal, close: closePaymentModal },
   ] = useDisclosure(false)
-  const { formatDateTime, fromNow } = useDayJs()
-  const SERVER_URL = import.meta.env.VITE_API_URL
-  const { users } = data
+
+  const {
+    data: todoQueryData,
+    isLoading: isLoadingTodo,
+    refetch: refetchTodo,
+  } = getTodoById(todoData.id)
+  const {
+    data: paymentLogsData,
+    refetch: refetchPaymentLogs,
+    isLoading: isLoadingPaymentLogs,
+  } = getPaymentLogs(filterPayload)
+
+  useEffect(() => {
+    refetchPaymentLogs()
+  }, [filterPayload])
+
+  useEffect(() => {
+    if (todoQueryData) {
+      setTodoData(todoQueryData)
+    }
+  }, [todoQueryData])
 
   useEffect(() => {
     document.title = `${data.title} | S-Todo`
+    refetchPaymentLogs()
   }, [])
+
+  const handleRefreshAfterPayment = () => {
+    refetchTodo()
+    refetchPaymentLogs()
+  }
   return (
     <>
       <PaymentModal
-        data={data}
+        refetchTodo={handleRefreshAfterPayment}
+        data={todoData}
         open={openedPaymentModal}
         onClose={closePaymentModal}
         title="Donate"
@@ -59,26 +100,33 @@ function TodoItem({ data }: TodoItemProps) {
           titleProps={{
             order: 2,
           }}
-          title={data.title}
+          title={todoData.title}
           to="/todo"
         />
 
         <Grid>
           <Grid.Col span={{ base: 12, md: 8 }}>
             <Stack>
-              <Card
-                styles={{
-                  root: {
-                    backgroundColor: '#80808021',
-                  },
-                }}
-                shadow="sm"
-              >
-                <Text fw={500}>Description</Text>
-                <Typography>
-                  <div dangerouslySetInnerHTML={{ __html: data.description }} />
-                </Typography>
-              </Card>
+              {todoData.description && (
+                <Card
+                  styles={{
+                    root: {
+                      backgroundColor: '#80808021',
+                    },
+                  }}
+                  shadow="sm"
+                >
+                  <Flex align={'center'} className="text-purple-600" gap={8}>
+                    <FaPencilAlt />
+                    <Text fw={500}>Description</Text>
+                  </Flex>
+                  <Typography>
+                    <div
+                      dangerouslySetInnerHTML={{ __html: todoData.description }}
+                    />
+                  </Typography>
+                </Card>
+              )}
 
               <Card
                 styles={{
@@ -88,22 +136,72 @@ function TodoItem({ data }: TodoItemProps) {
                 }}
                 shadow="sm"
               >
-                <Flex gap={4} align={'center'}>
+                <Flex className="text-purple-600" gap={8} align={'center'}>
                   <FaHistory />
                   <Text>Activity Logs</Text>
                 </Flex>
-                <Table my={12}>
-                  <Table.Thead>
-                    <Table.Tr>
-                      <Table.Th>Time</Table.Th>
-                      <Table.Th>User</Table.Th>
-                      <Table.Th>Action</Table.Th>
-                      <Table.Th>Description</Table.Th>
-                    </Table.Tr>
-                  </Table.Thead>
-                </Table>
+                <TableScrollContainer minWidth={600}>
+                  <Table my={12}>
+                    <Table.Thead>
+                      <Table.Tr>
+                        <Table.Th>Time</Table.Th>
+                        <Table.Th>User</Table.Th>
+                        <Table.Th>Action</Table.Th>
+                        <Table.Th>Note</Table.Th>
+                      </Table.Tr>
+                    </Table.Thead>
+
+                    <Table.Tbody>
+                      {paymentLogsData?.data &&
+                        paymentLogsData?.data.length > 0 &&
+                        paymentLogsData.data.map((log) => (
+                          <Table.Tr key={log.id}>
+                            <Table.Td>
+                              {formatDateTime(log.createdAt!)}
+                            </Table.Td>
+                            <Table.Td>
+                              <Flex align={'center'} gap={8}>
+                                <Avatar
+                                  size={'sm'}
+                                  src={
+                                    log?.avatarUrl &&
+                                    `${SERVER_URL}/${log.avatarUrl}`
+                                  }
+                                  name={log.fullName!}
+                                  color="initials"
+                                />
+                                <Text size={'sm'}>{log.fullName}</Text>
+                              </Flex>
+                            </Table.Td>
+                            <Table.Td>
+                              <NumberFormatter
+                                className={
+                                  log.status === 'PAID' ? 'text-green-600' : ''
+                                }
+                                prefix={log.status === 'PAID' ? '+' : ''}
+                                value={log.amount}
+                                thousandSeparator
+                                suffix="đ"
+                              />
+                            </Table.Td>
+                            <Table.Td>{log.note}</Table.Td>
+                          </Table.Tr>
+                        ))}
+                    </Table.Tbody>
+                  </Table>
+                </TableScrollContainer>
+                {isEmpty(paymentLogsData?.data) && !isLoadingPaymentLogs && (
+                  <Empty />
+                )}
                 <Center>
-                  <Pagination total={2} />
+                  <Pagination
+                    disabled={isLoadingPaymentLogs}
+                    onChange={(page) =>
+                      setFilterPayload((prev) => ({ ...prev, page }))
+                    }
+                    value={paymentLogsData?.pagination.page}
+                    total={paymentLogsData?.pagination.totalPage!}
+                  />
                 </Center>
               </Card>
             </Stack>
@@ -111,7 +209,7 @@ function TodoItem({ data }: TodoItemProps) {
 
           <Grid.Col span={{ base: 12, md: 4 }}>
             <Stack>
-              {data.type === 'fund' && (
+              {todoData.type === 'fund' && (
                 <Card
                   styles={{
                     root: {
@@ -124,29 +222,74 @@ function TodoItem({ data }: TodoItemProps) {
                     <MdAttachMoney />
                     <Text>Fund</Text>
                   </Flex>
-                  <Flex my={12} justify={'space-between'} align={'center'}>
-                    <Box>
-                      <Text>Total:</Text>
-                      <NumberFormatter
-                        className="text-green-500"
-                        suffix="đ"
-                        value={0}
-                        thousandSeparator
+
+                  {todoData?.expectedAmount && todoData.expectedAmount > 0 ? (
+                    <Flex
+                      gap={{ base: 8 }}
+                      direction={{ base: 'column', sm: 'row' }}
+                      my={12}
+                      justify={'space-between'}
+                      align={{ base: 'baseline', sm: 'center' }}
+                    >
+                      <Flex
+                        w={{ base: '100%', sm: 'fit-content' }}
+                        direction={{ base: 'row', sm: 'column' }}
+                        justify={{ base: 'space-between' }}
+                        gap={{ base: 8 }}
+                      >
+                        <Text>Total:</Text>
+                        <NumberFormatter
+                          className="text-green-600"
+                          suffix="đ"
+                          value={todoData.totalAmount}
+                          thousandSeparator
+                        />
+                      </Flex>
+                      <Flex
+                        w={{ base: '100%', sm: 'fit-content' }}
+                        justify={{ base: 'space-between' }}
+                        direction={{ base: 'row', sm: 'column' }}
+                        gap={{ base: 8 }}
+                      >
+                        <Text>Goal:</Text>
+                        <NumberFormatter
+                          className="text-purple-600"
+                          suffix="đ"
+                          value={todoData.expectedAmount}
+                          thousandSeparator
+                        />
+                      </Flex>
+                    </Flex>
+                  ) : (
+                    <Center mt={12}>
+                      <AnimatedNumber
+                        value={todoData.totalAmount}
+                        duration={1.2}
+                        className="text-green-600 text-2xl font-bold"
+                        options={{
+                          style: 'currency',
+                          currency: 'VND',
+                          minimumFractionDigits: 0,
+                        }}
+                        locale="vi-VN"
                       />
-                    </Box>
-                    <Box>
-                      <Text>Goal:</Text>
-                      <NumberFormatter
-                        className="text-purple-600"
-                        suffix="đ"
-                        value={data.expectedAmount}
-                        thousandSeparator
+                    </Center>
+                  )}
+
+                  {todoData?.expectedAmount && todoData.expectedAmount > 0 ? (
+                    <Tooltip
+                      label={`${Math.round((todoData.totalAmount / todoData.expectedAmount) * 100)}%`}
+                    >
+                      <Progress
+                        value={Math.round(
+                          (todoData.totalAmount / todoData.expectedAmount) *
+                            100,
+                        )}
+                        transitionDuration={300}
+                        animated
                       />
-                    </Box>
-                  </Flex>
-                  <Tooltip label="40%">
-                    <Progress value={40} transitionDuration={300} animated />
-                  </Tooltip>
+                    </Tooltip>
+                  ) : null}
 
                   <Button
                     onClick={openPaymentModal}
@@ -166,9 +309,15 @@ function TodoItem({ data }: TodoItemProps) {
                 }}
                 shadow="sm"
               >
-                <Flex className="text-purple-600" align={'center'} gap={8}>
+                <Flex
+                  pb={8}
+                  className="text-purple-600"
+                  align={'center'}
+                  gap={8}
+                >
+                  <FaUserGroup />
                   <Text fw={500}>Users</Text>
-                  <Text>{data.users?.length || 0}</Text>
+                  <Text>({todoData.users?.length || ''})</Text>
                 </Flex>
                 <Avatar.Group>
                   {users?.map((u) => (
@@ -185,6 +334,7 @@ function TodoItem({ data }: TodoItemProps) {
                 </Avatar.Group>
               </Card>
 
+              {/* information */}
               <Card
                 styles={{
                   root: {
@@ -193,18 +343,24 @@ function TodoItem({ data }: TodoItemProps) {
                 }}
                 shadow="sm"
               >
-                <Text className="!text-purple-600" fw={500}>
-                  Information
-                </Text>
+                <Flex
+                  align={'center'}
+                  className="text-purple-600"
+                  gap={8}
+                  mb={8}
+                >
+                  <HiOutlineInformationCircle />
+                  <Text fw={500}>Information</Text>
+                </Flex>
                 <Stack gap={'xs'}>
                   <Flex align={'center'} justify={'space-between'}>
                     <Text size="sm">Status</Text>
                     <Badge
                       bd={'1px solid'}
                       variant="light"
-                      color={switchStatusColor(data.status)}
+                      color={switchStatusColor(todoData.status)}
                     >
-                      {data.status}
+                      {todoData.status}
                     </Badge>
                   </Flex>
                   <Divider />
@@ -213,34 +369,43 @@ function TodoItem({ data }: TodoItemProps) {
                     <Badge
                       bd={'1px solid'}
                       variant="light"
-                      color={swichPriorityColor(data.priority)}
+                      color={swichPriorityColor(todoData.priority)}
                     >
-                      {data.priority}
+                      {todoData.priority}
                     </Badge>
                   </Flex>
                   <Divider />
                   <Flex align={'center'} justify={'space-between'}>
                     <Text size="sm">Start Date</Text>
-                    <Tooltip label={formatDateTime(data.startDate!)}>
-                      <Text size="sm">{fromNow(data.startDate!)}</Text>
+                    <Tooltip label={formatDateTime(todoData.startDate!)}>
+                      <Text size="sm">{fromNow(todoData.startDate!)}</Text>
                     </Tooltip>
                   </Flex>
                   <Divider />
-                  <Flex align={'center'} justify={'space-between'}>
-                    <Text size="sm">End Date</Text>
-                    <Tooltip label={formatDateTime(data.endDate!)}>
-                      <Text size="sm">{fromNow(data.endDate!)}</Text>
-                    </Tooltip>
-                  </Flex>
-                  <Divider />
+                  {todoData?.endDate && (
+                    <>
+                      <Flex align={'center'} justify={'space-between'}>
+                        <Text size="sm">End Date</Text>
+                        <Tooltip label={formatDateTime(todoData.endDate!)}>
+                          <Text
+                            c={isAfter(todoData.endDate!) ? 'red' : 'black'}
+                            size="sm"
+                          >
+                            {fromNow(todoData.endDate!)}
+                          </Text>
+                        </Tooltip>
+                      </Flex>
+                      <Divider />
+                    </>
+                  )}
                   <Flex align={'center'} justify={'space-between'}>
                     <Text size="sm">Created At</Text>
-                    <Text size="sm">{formatDateTime(data.createdAt)}</Text>
+                    <Text size="sm">{formatDateTime(todoData.createdAt)}</Text>
                   </Flex>
                   <Divider />
                   <Flex align={'center'} justify={'space-between'}>
                     <Text size="sm">Updated At</Text>
-                    <Text size="sm">{formatDateTime(data.updatedAt!)}</Text>
+                    <Text size="sm">{formatDateTime(todoData.updatedAt!)}</Text>
                   </Flex>
                 </Stack>
               </Card>

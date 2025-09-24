@@ -6,6 +6,10 @@ import { useContext } from 'react'
 import { AuthContext } from '@/providers/Context/AuthContext'
 import { fetchError } from '@/utils/toast/fetchError'
 import { IoMdExit } from 'react-icons/io'
+import { EUserRole } from '@/constants/App'
+import { CiImageOn } from 'react-icons/ci'
+import { MdDriveFileRenameOutline } from 'react-icons/md'
+import { IoKeyOutline } from 'react-icons/io5'
 function AppHeader() {
   const router = useRouter()
   const navigate = useNavigate()
@@ -35,6 +39,7 @@ function AppHeader() {
     {
       href: '/manage',
       label: 'Manage Todo',
+      notAllowRole: EUserRole.USER,
     },
   ]
 
@@ -48,6 +53,7 @@ function AppHeader() {
       <Flex gap={8}>
         {links.map((l, i) => (
           <NavLink
+            hidden={l.notAllowRole === user?.role}
             component={Link}
             key={i}
             style={{
@@ -80,7 +86,6 @@ function AppHeader() {
             />
           </Flex>
         </Menu.Target>
-
         <Menu.Dropdown>
           <Box ta={'center'} p={8}>
             <Text>{user?.fullName}</Text>
@@ -88,6 +93,12 @@ function AppHeader() {
               @{user?.userId}
             </Text>
           </Box>
+          <Menu.Divider />
+          <Menu.Item leftSection={<CiImageOn />}>Change Avatar</Menu.Item>
+          <Menu.Item leftSection={<MdDriveFileRenameOutline />}>
+            Change Display Name
+          </Menu.Item>
+          <Menu.Item leftSection={<IoKeyOutline />}>Change Password</Menu.Item>
           <Menu.Divider />
           <Menu.Item
             onClick={handleLogout}

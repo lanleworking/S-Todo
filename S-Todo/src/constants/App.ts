@@ -3,6 +3,11 @@ export enum EAppLanguage {
   VI = 'vi',
 }
 
+export enum EUserRole {
+  USER = 0,
+  ADMIN = 1,
+}
+
 export enum EResetPasswordMode {
   FORGOT = 'forgot',
   CHANGE = 'change',

@@ -37,6 +37,7 @@ export interface IManageTodoData {
 
 export interface ITodo {
   id: number
+  shortDescription: string
   title: string
   description: string
   status: ETodoStatus
@@ -48,11 +49,19 @@ export interface ITodo {
   createdAt: string
 }
 
+export interface ITodoList
+  extends Omit<ITodo, 'createdAt'>,
+    Omit<IUser, 'createdAt'> {
+  createdAt: string
+}
+
 export interface ITodoData extends ITodo {
   users?: ITodoItemUser[]
   updatedAt?: string
   startDate?: string
   expectedAmount?: number
+  paymentLogs: IPaymentLogData[]
+  totalAmount: number
 }
 
 export interface ITodoItemUser {
@@ -65,4 +74,41 @@ export interface ITodoItemUser {
 export interface ISelectOption {
   label: string
   value: string
+}
+
+export interface IPaymentLogData {
+  id: number
+  todoId: number
+  paymentLinkId: string
+  amount: number
+  status: string
+  note: string | null
+  qrCode: string | null
+  createdBy: string
+  createdAt: string | null
+  updatedAt: string | null
+  fullName: string | null
+  userId: string
+  avatarUrl: string | null
+}
+
+export interface ITodoPaymentPayload {
+  todoId: number
+  limit: number
+  page: number
+}
+
+export interface ITodoPaymentResponse {
+  data: IPaymentLogData[]
+  pagination: {
+    total: number
+    page: number
+    limit: number
+    totalPage: number
+  }
+}
+
+export interface IChartData {
+  status: string
+  amount: number
 }

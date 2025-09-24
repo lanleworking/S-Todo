@@ -25,6 +25,9 @@ export const todos = pgTable('todos', {
     title: varchar('title', {
         length: 100,
     }).notNull(),
+    shortDescription: varchar('short_description', {
+        length: 255,
+    }),
     description: text('description'),
     createdby: varchar('created_by', {
         length: 50,
@@ -62,13 +65,29 @@ export const todoLogs = pgTable('todo_logs', {
     todoId: integer('todo_id')
         .notNull()
         .references(() => todos.id, { onDelete: 'cascade', onUpdate: 'cascade' }),
-    action: varchar('action', { length: 50 }).notNull(), // "Created", "Updated", "Deleted", etc.
-    details: varchar('details', { length: 500 }),
-    amount: integer('amount'),
+    action: varchar('action', { length: 50 }).notNull(),
+    note: varchar('note', { length: 500 }),
     performedBy: varchar('performed_by', { length: 50 })
         .notNull()
         .references(() => users.userId, { onDelete: 'cascade', onUpdate: 'cascade' }),
     performedAt: timestamp('performed_at', { mode: 'string' }).defaultNow(),
+});
+
+export const paymentLogs = pgTable('payment_logs', {
+    id: serial('id').primaryKey(),
+    todoId: integer('todo_id')
+        .notNull()
+        .references(() => todos.id, { onDelete: 'cascade', onUpdate: 'cascade' }),
+    paymentLinkId: varchar('payment_link_id', { length: 100 }).notNull(),
+    amount: integer('amount').notNull(),
+    status: varchar('status', { length: 50 }).notNull(),
+    note: varchar('note', { length: 500 }),
+    qrCode: text('qr_code'),
+    createdBy: varchar('created_by', { length: 50 })
+        .notNull()
+        .references(() => users.userId, { onDelete: 'cascade', onUpdate: 'cascade' }),
+    createdAt: timestamp('created_at', { mode: 'string' }).defaultNow(),
+    updatedAt: timestamp('updated_at', { mode: 'string' }).defaultNow(),
 });
 
 export const priorityLevels = pgTable('priority_levels', {

@@ -20,7 +20,7 @@ async function create(
     const todoUsersToInsert = payload?.shared && payload.sharedWith ? [...payload.sharedWith, userId] : [userId];
 
     // Validation
-    if (!payload.title || !payload.type || !userId)
+    if (!payload.title || !payload.type || !userId || !payload.shortDescription)
         throw throwResponse(EStatusCodes.BAD_REQUEST, EHttpCode.INVALID_PAYLOAD, 'Invalid Payload');
     if (payload?.startDate && payload?.endDate && new Date(payload.startDate) > new Date(payload.endDate))
         throw throwResponse(
@@ -30,12 +30,13 @@ async function create(
         );
 
     // Ensure dates are either Date objects or null
-    const processedPayload = {
+    const processedPayload: NewTodoType = {
         ...payload,
-        startDate: payload.startDate ? new Date(payload.startDate) : null,
-        endDate: payload.endDate ? new Date(payload.endDate) : null,
+        startDate: payload.startDate ? new Date(payload.startDate).toISOString() : null,
+        endDate: payload.endDate ? new Date(payload.endDate).toISOString() : null,
         createdby: userId,
     };
+    console.log(processedPayload);
 
     // Create the todo
     const [lastestNewTodo] = await db

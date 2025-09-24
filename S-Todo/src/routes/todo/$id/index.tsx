@@ -13,6 +13,5 @@ export const Route = createFileRoute('/todo/$id/')({
 
 function RouteComponent() {
   const todoItemData = useLoaderData({ from: '/todo/$id/' })
-  console.log('todoItemData:', todoItemData)
   return <TodoItem data={todoItemData} />
 }

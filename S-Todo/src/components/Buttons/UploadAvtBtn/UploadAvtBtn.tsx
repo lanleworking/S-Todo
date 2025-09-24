@@ -4,6 +4,7 @@ import type { GetProp, UploadFile, UploadProps } from 'antd'
 import ImgCrop from 'antd-img-crop'
 import toast from 'react-hot-toast'
 import { FiUpload } from 'react-icons/fi'
+import { Center } from '@mantine/core'
 
 type FileType = Parameters<GetProp<UploadProps, 'beforeUpload'>>[0]
 type UploadAvtBtnType = {
@@ -55,7 +56,9 @@ const UploadAvtBtn = ({ setAvtFile }: UploadAvtBtnType) => {
 
   const uploadButton = (
     <button style={{ border: 0, background: 'none' }} type="button">
-      <FiUpload />
+      <Center>
+        <FiUpload />
+      </Center>
       {/* {loading ? <LoadingOutlined /> : <PlusOutlined />} */}
       <div style={{ marginTop: 8 }}>Avatar</div>
     </button>

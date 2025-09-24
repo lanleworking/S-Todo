@@ -10,24 +10,28 @@ import {
   NumberInput,
   Stack,
   Text,
+  Textarea,
+  TextInput,
 } from '@mantine/core'
 import { MdAttachMoney } from 'react-icons/md'
 import { IoQrCodeOutline } from 'react-icons/io5'
 import usePayment from '@/hooks/usePayment'
 import type { ITodoData } from '@/constants/Data'
 import { fetchError } from '@/utils/toast/fetchError'
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useRef } from 'react'
 import { QRCode, Result } from 'antd'
 import appLogo from '@/assets/logos/App_Logo.png'
 import { useForm } from '@mantine/form'
 import { validateForm } from '@/utils/validate/validateForm'
 import { useTranslation } from 'react-i18next'
+import { FaRegStickyNote } from 'react-icons/fa'
 
 type PaymentModalProps = {
   open: boolean
   onClose: () => void
   title: string
   data: ITodoData
+  refetchTodo: () => void
 }
 
 interface ICreatePaymentResponse {
@@ -45,16 +49,24 @@ interface ICreatePaymentResponse {
   qrCode: string
 }
 
-function PaymentModal({ open, onClose, title, data }: PaymentModalProps) {
+function PaymentModal({
+  open,
+  onClose,
+  title,
+  data,
+  refetchTodo,
+}: PaymentModalProps) {
   const [paymentDetails, setPaymentDetails] =
     useState<ICreatePaymentResponse | null>(null)
   const [paymentStatus, setPaymentStatus] = useState('')
+  const intervalRef = useRef<NodeJS.Timeout | null>(null)
   const { createPaymentMutate, getPayment, cancelPayment } = usePayment()
   const { t } = useTranslation()
   const { key, onSubmit, reset, getInputProps, getValues } = useForm({
     mode: 'controlled',
     initialValues: {
       amount: 0,
+      note: '',
     },
     validate: {
       amount: (value) =>
@@ -67,8 +79,42 @@ function PaymentModal({ open, onClose, title, data }: PaymentModalProps) {
   const { mutate: cancelPaymentMutate, isPending: isCancelling } = cancelPayment
   const { mutate, isPending } = createPaymentMutate
 
-  const handleClose = () => {
+  const clearPaymentInterval = () => {
+    if (intervalRef.current) {
+      clearInterval(intervalRef.current)
+      intervalRef.current = null
+    }
+  }
+
+  const startPaymentPolling = (paymentId: string) => {
+    // Clear any existing interval
+    clearPaymentInterval()
+
+    // Start polling every 5 seconds
+    intervalRef.current = setInterval(() => {
+      if (!paymentId || isChecking) return
+      getPaymentMutate(paymentId, {
+        onSuccess: (data) => {
+          setPaymentStatus(data.status)
+          // Stop polling if payment is completed, cancelled, or expired
+          if (['PAID', 'CANCELLED', 'EXPIRED'].includes(data.status)) {
+            clearPaymentInterval()
+          }
+        },
+        onError: (error) => {
+          console.error('Error checking payment status:', error)
+          // Continue polling even on error, but maybe add retry limit
+        },
+      })
+    }, 5000) // 5 seconds
+  }
+
+  const handleClose = (type: 'success' | 'cancel') => {
     if (isPending) return
+
+    // Clear polling interval
+    clearPaymentInterval()
+
     if (paymentDetails?.paymentLinkId && paymentStatus !== 'PAID') {
       handleCancelPayment(paymentDetails.paymentLinkId)
     }
@@ -76,17 +122,23 @@ function PaymentModal({ open, onClose, title, data }: PaymentModalProps) {
     onClose()
     setPaymentStatus('')
     reset()
+    if (type === 'success') {
+      refetchTodo() // Refresh todo data to reflect any changes
+    }
   }
 
-  const handleCreatePayment = (value: { amount: number }) => {
+  const handleCreatePayment = (value: { amount: number; note?: string }) => {
     mutate(
       {
-        amount: value.amount,
+        ...value,
         todoId: data.id,
       },
       {
         onSuccess: (data) => {
           setPaymentDetails(data)
+          setPaymentStatus('PENDING')
+          // Start auto-checking payment status
+          startPaymentPolling(data.paymentLinkId)
         },
         onError: (e) => fetchError(e),
       },
@@ -97,11 +149,18 @@ function PaymentModal({ open, onClose, title, data }: PaymentModalProps) {
     getPaymentMutate(paymentId, {
       onSuccess: (data) => {
         setPaymentStatus(data.status)
+        // If payment is completed, stop auto-polling
+        if (['PAID', 'CANCELLED', 'EXPIRED'].includes(data.status)) {
+          clearPaymentInterval()
+        }
       },
     })
   }
 
   const handleCancelPayment = (paymentId: string) => {
+    // Clear polling when cancelling
+    clearPaymentInterval()
+
     cancelPaymentMutate(paymentId, {
       onSuccess: () => {
         reset()
@@ -121,7 +180,11 @@ function PaymentModal({ open, onClose, title, data }: PaymentModalProps) {
             status={'success'}
             title="Successfully Donated"
             subTitle="Thank you for your donation!"
-            extra={[<Button onClick={handleClose}>Close</Button>]}
+            extra={[
+              <Button key={'close'} onClick={() => handleClose('success')}>
+                Close
+              </Button>,
+            ]}
           />
         )
       case 'CANCELLED':
@@ -130,7 +193,9 @@ function PaymentModal({ open, onClose, title, data }: PaymentModalProps) {
             status={'error'}
             title="Donation Cancelled"
             subTitle="Your donation has been cancelled."
-            extra={[<Button onClick={handleClose}>Close</Button>]}
+            extra={[
+              <Button onClick={() => handleClose('cancel')}>Close</Button>,
+            ]}
           />
         )
       case 'EXPIRED':
@@ -139,7 +204,9 @@ function PaymentModal({ open, onClose, title, data }: PaymentModalProps) {
             status={'warning'}
             title="Donation Expired"
             subTitle="Your donation link has expired."
-            extra={[<Button onClick={handleClose}>Close</Button>]}
+            extra={[
+              <Button onClick={() => handleClose('cancel')}>Close</Button>,
+            ]}
           />
         )
 
@@ -148,10 +215,13 @@ function PaymentModal({ open, onClose, title, data }: PaymentModalProps) {
           <Result
             status={'info'}
             title="Donation Pending"
-            subTitle="Your donation is being processed."
+            subTitle="Your donation is being processed. We're checking automatically every 5 seconds."
             extra={[
-              <Button onClick={() => handleCheckPayment(paymentID)}>
-                Check Payment
+              <Button
+                onClick={() => handleCheckPayment(paymentID)}
+                loading={isChecking}
+              >
+                Check Now
               </Button>,
             ]}
           />
@@ -159,23 +229,34 @@ function PaymentModal({ open, onClose, title, data }: PaymentModalProps) {
     }
   }
 
+  // Cleanup on component unmount or modal close
   useEffect(() => {
     return () => {
+      clearPaymentInterval()
       if (paymentDetails?.paymentLinkId && paymentStatus !== 'PAID') {
-        handleCancelPayment(paymentDetails.paymentLinkId)
+        // Note: This might not work reliably on unmount
+        // Consider moving cleanup to handleClose instead
       }
       reset()
       setPaymentDetails(null)
       setPaymentStatus('')
     }
   }, [])
+
+  // Clear interval when modal is closed
+  useEffect(() => {
+    if (!open) {
+      clearPaymentInterval()
+    }
+  }, [open])
+
   return (
     <Modal
       size="lg"
       centered
       closeOnClickOutside={false}
       opened={open}
-      onClose={handleClose}
+      onClose={() => handleClose('cancel')}
       title={title}
     >
       {paymentDetails?.qrCode ? (
@@ -221,22 +302,13 @@ function PaymentModal({ open, onClose, title, data }: PaymentModalProps) {
               </Grid.Col>
             </Grid>
             <Text c={'dimmed'} ta={'center'}>
-              Scan the QR Code with banking app, then click Confirm Payment to
-              verify your payment
+              Scan the QR Code with banking app. We're automatically checking
+              payment status every 5 seconds.
+            </Text>
+            <Text c={'red'} ta={'center'}>
+              Do not close this window before payment is completed!
             </Text>
             <Group w={'100%'} justify="center">
-              <Button
-                loading={isCancelling}
-                disabled={isChecking}
-                flex={1}
-                fullWidth
-                variant="default"
-                onClick={() =>
-                  handleCancelPayment(paymentDetails.paymentLinkId)
-                }
-              >
-                Cancel
-              </Button>
               <Button
                 flex={1}
                 fullWidth
@@ -244,7 +316,7 @@ function PaymentModal({ open, onClose, title, data }: PaymentModalProps) {
                 loading={isChecking}
                 onClick={() => handleCheckPayment(paymentDetails.paymentLinkId)}
               >
-                Confirm Payment
+                Check Payment Now
               </Button>
             </Group>
           </Stack>
@@ -267,6 +339,13 @@ function PaymentModal({ open, onClose, title, data }: PaymentModalProps) {
               description={
                 "! This amount is for testing purposes only and won't be charged."
               }
+            />
+            <TextInput
+              key={key('note')}
+              {...getInputProps('note')}
+              leftSection={<FaRegStickyNote />}
+              placeholder="Note"
+              label="Note"
             />
             <Button
               type="submit"

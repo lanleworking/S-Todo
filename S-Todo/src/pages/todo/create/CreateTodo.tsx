@@ -83,6 +83,7 @@ function CreateTodo({ userOptionsData }: CreateTodoProps) {
       status: ETodoStatus.NEW,
       shared: false,
       sharedWith: [] as string[],
+      shortDescription: '',
     },
     validate: {
       title: (value) =>
@@ -90,6 +91,7 @@ function CreateTodo({ userOptionsData }: CreateTodoProps) {
           maxLength: 100,
         }),
       startDate: (value) => validateForm(value, t),
+      shortDescription: (value) => validateForm(value, t, { maxLength: 255 }),
       priority: (value) => validateForm(value, t),
       type: (value) => validateForm(value, t),
     },
@@ -108,12 +110,13 @@ function CreateTodo({ userOptionsData }: CreateTodoProps) {
       description: descValue,
       sharedWith: formData.shared ? formData.sharedWith : [],
     }
-
     mutateNewTodo(modifiedFormData, {
-      onSuccess: () => {
+      onSuccess: (data) => {
         navigate({
-          to: pathName.includes('manage') ? '/manage' : '/todo',
-          reloadDocument: true,
+          to: '/todo/$id',
+          params: {
+            id: String(data.id),
+          },
         })
       },
       onError: (error) => fetchError(error),
@@ -140,7 +143,7 @@ function CreateTodo({ userOptionsData }: CreateTodoProps) {
         style={{ marginTop: 20, position: 'relative' }}
       >
         <Grid>
-          <Grid.Col span={6}>
+          <Grid.Col span={12}>
             <TextInput
               description={'Max characters: 100'}
               key={key('title')}
@@ -148,6 +151,18 @@ function CreateTodo({ userOptionsData }: CreateTodoProps) {
               withAsterisk
               label="Title"
               placeholder="Finish homework ..."
+              leftSection={<CiText />}
+            />
+          </Grid.Col>
+
+          <Grid.Col span={6}>
+            <TextInput
+              description={'Max characters: 255'}
+              key={key('shortDescription')}
+              {...getInputProps('shortDescription')}
+              withAsterisk
+              label="Short Description"
+              placeholder="A brief description of the todo ..."
               leftSection={<CiText />}
             />
           </Grid.Col>
@@ -175,6 +190,7 @@ function CreateTodo({ userOptionsData }: CreateTodoProps) {
 
           <Grid.Col span={6}>
             <DatePickerInput
+              clearable
               {...getInputProps('startDate')}
               key={key('startDate')}
               label="Start Date"
@@ -187,10 +203,11 @@ function CreateTodo({ userOptionsData }: CreateTodoProps) {
 
           <Grid.Col span={6}>
             <DatePickerInput
+              clearable
               label="End Date"
               {...getInputProps('endDate')}
               key={key('endDate')}
-              minDate={new Date()}
+              minDate={getValues().startDate || new Date()}
               placeholder="Choose date"
               leftSection={<CiCalendarDate />}
             />

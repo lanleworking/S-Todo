@@ -71,11 +71,7 @@ function CustomRichTextEditor({ value, onChange }: CustomRichTextEditorProps) {
       </RichTextEditor.Toolbar>
 
       {/* content */}
-      <RichTextEditor.Content
-        onChange={(e) => {
-          console.log(e)
-        }}
-      />
+      <RichTextEditor.Content />
     </RichTextEditor>
   )
 }

@@ -40,7 +40,7 @@ const login = async (payload: ILoginPayload, jwt: IJWTService, set: any, host: s
     }
 
     setTokenCookie(set, token, expiresInSec);
-    const { password: _password, role, ...restData } = user;
+    const { password: _password, ...restData } = user;
     return restData;
 };
 

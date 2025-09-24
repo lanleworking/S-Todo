@@ -1,0 +1,14 @@
+@keyframes hoverScaleUp {
+  0% {
+    transform: scale(1);
+  }
+  100% {
+    transform: scale(1.02);
+  }
+}
+
+.todoCard {
+  &:hover {
+    animation: hoverScaleUp 0.2s forwards;
+  }
+}

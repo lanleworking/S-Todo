@@ -7,4 +7,5 @@ export interface ILoginPayload {
 
 export interface ICreatePaymentLinkPayload extends CreatePaymentLinkRequest {
     todoId: number;
+    note?: string;
 }

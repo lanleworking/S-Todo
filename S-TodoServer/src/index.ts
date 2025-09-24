@@ -25,5 +25,5 @@ pool.connect()
         process.exit(1);
     });
 app.listen(process.env.PORT!);
-console.log(`🦊 Elysia is running at ${process.env._ENV}`);
+console.log(`🦊 Elysia is running at ${process.env.CODE_ENV}`);
 console.log(`🦊 Elysia is running at ${app.server?.hostname}:${app.server?.port}`);

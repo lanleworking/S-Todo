@@ -153,10 +153,7 @@ function ManageTodo({ manageTodoData }: ManageTodoProps) {
 
       {/* Action Bar */}
       {!isEmpty(checkedItems) && (
-        <Box
-          onClick={() => console.log(columns, manageTodoData)}
-          className={clsx(styles.actionBar)}
-        >
+        <Box className={clsx(styles.actionBar)}>
           <Flex justify={'space-between'} align={'center'}>
             <Text>
               {checkedItems.length} Todo{checkedItems.length > 1 ? 's' : ''}{' '}
