@@ -1,4 +1,4 @@
-import { Box, Flex, Image } from '@mantine/core'
+import { Flex, Image } from '@mantine/core'
 import clsx from 'clsx'
 import styles from './FullScreen.module.scss'
 

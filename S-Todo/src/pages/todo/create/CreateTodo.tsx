@@ -30,15 +30,17 @@ import {
 } from '@mantine/core'
 import { DatePickerInput } from '@mantine/dates'
 import { useForm } from '@mantine/form'
-import { useNavigate, useRouter } from '@tanstack/react-router'
-import { use, useContext, useEffect, useMemo, useState } from 'react'
+import { useNavigate } from '@tanstack/react-router'
+import { useContext, useEffect, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { CiCalendarDate, CiMoneyBill, CiText } from 'react-icons/ci'
 import { FiUsers } from 'react-icons/fi'
+import { IoMdNotificationsOutline } from 'react-icons/io'
 import { LuListTodo, LuUserSearch } from 'react-icons/lu'
 import {
   MdAttachMoney,
   MdOutlineDescription,
+  MdOutlineEditNotifications,
   MdOutlineLowPriority,
 } from 'react-icons/md'
 
@@ -49,7 +51,6 @@ type CreateTodoProps = {
 function CreateTodo({ userOptionsData }: CreateTodoProps) {
   const [descValue, setDescValue] = useState<string>('')
   const navigate = useNavigate()
-  const router = useRouter()
   const { t } = useTranslation()
   const { user } = useContext(AuthContext)
   const { createNewTodo } = useTodo()
@@ -60,7 +61,6 @@ function CreateTodo({ userOptionsData }: CreateTodoProps) {
     return filterOwner
   }, [userOptionsData, user?.userId])
 
-  const pathName = router.history.location.pathname
   const {
     getValues,
     onSubmit,
@@ -329,7 +329,7 @@ function CreateTodo({ userOptionsData }: CreateTodoProps) {
           </Grid.Col>
 
           {/* Notify */}
-          {/* <Grid.Col span={12}>
+          <Grid.Col span={12}>
             <Stack>
               <Divider />
               <Card
@@ -376,17 +376,13 @@ function CreateTodo({ userOptionsData }: CreateTodoProps) {
                     </Grid.Col>
 
                     <Grid.Col span={12}>
-                      <Textarea
-                        label="Message"
-                        placeholder="Enter your message"
-                        autosize
-                      />
+                      <TextInput />
                     </Grid.Col>
                   </Grid>
                 </Stack>
               </Card>
             </Stack>
-          </Grid.Col> */}
+          </Grid.Col>
           <Grid.Col span={12}>
             <Title order={3}>Advance Setting</Title>
             <Card

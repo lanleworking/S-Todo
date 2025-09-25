@@ -1,6 +1,7 @@
 import {
   Anchor,
   Button,
+  Card,
   Center,
   Flex,
   Grid,
@@ -10,7 +11,6 @@ import {
   NumberInput,
   Stack,
   Text,
-  Textarea,
   TextInput,
 } from '@mantine/core'
 import { MdAttachMoney } from 'react-icons/md'
@@ -178,11 +178,11 @@ function PaymentModal({
         return (
           <Result
             status={'success'}
-            title="Successfully Donated"
-            subTitle="Thank you for your donation!"
+            title={t('payment.success.title')}
+            subTitle={t('payment.success.subtitle')}
             extra={[
               <Button key={'close'} onClick={() => handleClose('success')}>
-                Close
+                {t('button.close')}
               </Button>,
             ]}
           />
@@ -191,10 +191,13 @@ function PaymentModal({
         return (
           <Result
             status={'error'}
-            title="Donation Cancelled"
-            subTitle="Your donation has been cancelled."
+            title={t('payment.cancel.title')}
+            subTitle={t('payment.cancel.subtitle')}
             extra={[
-              <Button onClick={() => handleClose('cancel')}>Close</Button>,
+              <Button onClick={() => handleClose('cancel')}>
+                {' '}
+                {t('button.close')}
+              </Button>,
             ]}
           />
         )
@@ -202,10 +205,13 @@ function PaymentModal({
         return (
           <Result
             status={'warning'}
-            title="Donation Expired"
-            subTitle="Your donation link has expired."
+            title={t('payment.expired.title')}
+            subTitle={t('payment.expired.subtitle')}
             extra={[
-              <Button onClick={() => handleClose('cancel')}>Close</Button>,
+              <Button onClick={() => handleClose('cancel')}>
+                {' '}
+                {t('button.close')}
+              </Button>,
             ]}
           />
         )
@@ -214,14 +220,14 @@ function PaymentModal({
         return (
           <Result
             status={'info'}
-            title="Donation Pending"
-            subTitle="Your donation is being processed. We're checking automatically every 5 seconds."
+            title={t('payment.pending.title')}
+            subTitle={t('payment.pending.subtitle')}
             extra={[
               <Button
                 onClick={() => handleCheckPayment(paymentID)}
                 loading={isChecking}
               >
-                Check Now
+                {t('button.check')}
               </Button>,
             ]}
           />
@@ -266,6 +272,7 @@ function PaymentModal({
               <Grid.Col span={{ base: 12, sm: 4 }}>
                 <Center>
                   <QRCode
+                    size={200}
                     value={paymentDetails?.qrCode!}
                     errorLevel="H"
                     icon={appLogo}
@@ -273,40 +280,48 @@ function PaymentModal({
                 </Center>
               </Grid.Col>
               <Grid.Col span={{ base: 12, sm: 8 }}>
-                <Stack>
-                  <Text size="lg" fw={'500'}>
-                    Payment Info:
-                  </Text>
-                  <Flex gap={8} align={'center'} justify={'space-between'}>
-                    <Text>Amount: </Text>
-                    <Text>
-                      <NumberFormatter
-                        value={getValues().amount}
-                        suffix="đ"
-                        thousandSeparator
-                      />
+                <Card
+                  shadow="sm"
+                  styles={{
+                    root: {
+                      backgroundColor: '#8080801c',
+                    },
+                  }}
+                >
+                  <Stack>
+                    <Text size="lg" fw={'500'}>
+                      {t('label.paymentModal.info')}:
                     </Text>
-                  </Flex>
-                  <Flex gap={8} align={'center'} justify={'space-between'}>
-                    <Text>Content:</Text>
-                    <Text>{paymentDetails?.description}</Text>
-                  </Flex>
-                  <Anchor
-                    ta={'center'}
-                    href={paymentDetails?.checkoutUrl}
-                    target="_blank"
-                  >
-                    Click here to view payment details
-                  </Anchor>
-                </Stack>
+                    <Flex gap={8} align={'center'} justify={'space-between'}>
+                      <Text>{t('label.amount')}:</Text>
+                      <Text>
+                        <NumberFormatter
+                          value={getValues().amount}
+                          suffix="đ"
+                          thousandSeparator
+                        />
+                      </Text>
+                    </Flex>
+                    <Flex gap={8} align={'center'} justify={'space-between'}>
+                      <Text>{t('label.content')}:</Text>
+                      <Text>{paymentDetails?.description}</Text>
+                    </Flex>
+                    <Anchor
+                      ta={'center'}
+                      href={paymentDetails?.checkoutUrl}
+                      target="_blank"
+                    >
+                      {t('label.paymentModal.openBankingLink')}
+                    </Anchor>
+                  </Stack>
+                </Card>
               </Grid.Col>
             </Grid>
             <Text c={'dimmed'} ta={'center'}>
-              Scan the QR Code with banking app. We're automatically checking
-              payment status every 5 seconds.
+              {t('label.paymentModal.qrNote')}
             </Text>
             <Text c={'red'} ta={'center'}>
-              Do not close this window before payment is completed!
+              {t('warning.notCloseTab')}
             </Text>
             <Group w={'100%'} justify="center">
               <Button
@@ -316,7 +331,7 @@ function PaymentModal({
                 loading={isChecking}
                 onClick={() => handleCheckPayment(paymentDetails.paymentLinkId)}
               >
-                Check Payment Now
+                {t('button.check')}
               </Button>
             </Group>
           </Stack>
@@ -334,18 +349,18 @@ function PaymentModal({
               thousandSeparator
               hideControls
               rightSection="đ"
-              label="Amount"
-              placeholder="Enter amount"
-              description={
-                "! This amount is for testing purposes only and won't be charged."
-              }
+              label={t('label.amount')}
+              placeholder={t('label.amount')}
+              description={t('label.paymentModal.amountMin', {
+                amount: '100,000',
+              })}
             />
             <TextInput
               key={key('note')}
               {...getInputProps('note')}
               leftSection={<FaRegStickyNote />}
-              placeholder="Note"
-              label="Note"
+              placeholder={t('label.note')}
+              label={t('label.note')}
             />
             <Button
               type="submit"
@@ -353,7 +368,7 @@ function PaymentModal({
               leftSection={<IoQrCodeOutline />}
               fullWidth
             >
-              Generate QRCode
+              {t('button.generateQRCode')}
             </Button>
           </Stack>
         </form>

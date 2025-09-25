@@ -28,11 +28,15 @@ import { useEffect } from 'react'
 import { Link } from '@tanstack/react-router'
 import { useMediaQuery } from '@mantine/hooks'
 import { MOBILE_MEDIAQUERY } from '@/constants/MediaQuery'
+import { useTranslation } from 'react-i18next'
+import { isEmpty } from 'lodash'
+import { Empty } from 'antd'
 
 function HomePage({ todoData }: { todoData: ITodo[] }) {
   const isMobile = useMediaQuery(MOBILE_MEDIAQUERY)
   const { getCurrentDay, fromNow, isAfter } = useDayJs()
   const { getTodoStatusBarChart } = useTodo()
+  const { t } = useTranslation()
   const day = getCurrentDay()
   const { data: barChartData, refetch: refetchBarChart } = getTodoStatusBarChart
 
@@ -49,7 +53,7 @@ function HomePage({ todoData }: { todoData: ITodo[] }) {
         >
           <Flex justify={'space-between'} align={'center'}>
             <Text className={clsx(styles.day, styles[day.toLowerCase()])}>
-              {day}
+              {day.toUpperCase()}
             </Text>
             <LiveClock />
           </Flex>
@@ -73,103 +77,111 @@ function HomePage({ todoData }: { todoData: ITodo[] }) {
           </Center>
         </Stack>
         <Divider />
-        <Grid
-          styles={{
-            inner: {
-              height: '100%',
-            },
-          }}
-          px={{ base: 0, sm: 20 }}
-          flex={1}
-          align="stretch"
-        >
-          {todoData?.map((todo) => (
-            <Grid.Col key={todo.id} span={{ md: 12, lg: 6 }}>
-              <Link to="/todo/$id" params={{ id: String(todo.id) }}>
-                <Box
-                  className={clsx(styles.todoCard, todo.status.toLowerCase())}
-                  style={{ height: '100%' }}
-                >
-                  <Flex h={'100%'} direction={'column'}>
-                    <Box flex={1}>
-                      <Flex align={'center'} justify={'space-between'}>
-                        <Title c={'black'} order={3}>
-                          {todo.title}
-                        </Title>
-                        <Badge
-                          color={swichPriorityColor(todo.priority)}
+        {isEmpty(todoData) ? (
+          <Center w={'100%'}>
+            <Empty />
+          </Center>
+        ) : (
+          <Grid
+            styles={{
+              inner: {
+                height: '100%',
+              },
+            }}
+            px={{ base: 0, sm: 20 }}
+            flex={1}
+            align="stretch"
+          >
+            {todoData?.map((todo) => (
+              <Grid.Col key={todo.id} span={{ md: 12, lg: 6 }}>
+                <Link to="/todo/$id" params={{ id: String(todo.id) }}>
+                  <Box
+                    className={clsx(styles.todoCard, todo.status.toLowerCase())}
+                    style={{ height: '100%' }}
+                  >
+                    <Flex h={'100%'} direction={'column'}>
+                      <Box flex={1}>
+                        <Flex align={'center'} justify={'space-between'}>
+                          <Title c={'black'} order={3}>
+                            {todo.title}
+                          </Title>
+                          <Badge
+                            color={swichPriorityColor(todo.priority)}
+                            size="sm"
+                          >
+                            {todo.priority}
+                          </Badge>
+                        </Flex>
+                        <Text
+                          mb={16}
+                          mt={8}
+                          className={clsx('textEllipsisTwoLines')}
+                          w={'100%'}
                           size="sm"
+                          c={'dimmed'}
                         >
-                          {todo.priority}
-                        </Badge>
-                      </Flex>
-                      <Text
-                        mb={16}
-                        mt={8}
-                        className={clsx('textEllipsisTwoLines')}
-                        w={'100%'}
-                        size="sm"
-                        c={'dimmed'}
-                      >
-                        {todo.shortDescription}
-                      </Text>
-                    </Box>
-                    <Flex gap={8} justify={'space-between'} align={'center'}>
-                      <Flex gap={8}>
-                        {todo.shared && (
+                          {todo.shortDescription}
+                        </Text>
+                      </Box>
+                      <Flex gap={8} justify={'space-between'} align={'center'}>
+                        <Flex gap={8}>
+                          {todo.shared && (
+                            <Badge
+                              color="white"
+                              c={'black'}
+                              bd={'1px solid #0000002b'}
+                              size="sm"
+                              leftSection={<LuUsersRound />}
+                            >
+                              Shared
+                            </Badge>
+                          )}
                           <Badge
                             color="white"
                             c={'black'}
                             bd={'1px solid #0000002b'}
                             size="sm"
-                            leftSection={<LuUsersRound />}
                           >
-                            Shared
+                            {t(`label.${todo.type.toLowerCase()}`)}
                           </Badge>
-                        )}
-                        <Badge
-                          color="white"
-                          c={'black'}
-                          bd={'1px solid #0000002b'}
-                          size="sm"
-                        >
-                          {todo.type}
-                        </Badge>
-                      </Flex>
-                      {todo.endDate && (
-                        <Flex
-                          c={isAfter(todo.endDate) ? 'red' : 'dimmed'}
-                          gap={8}
-                          align={'center'}
-                        >
-                          <CiTimer size={16} />
-                          <Text size="sm">{fromNow(todo.endDate)}</Text>
                         </Flex>
-                      )}
+                        {todo.endDate && (
+                          <Flex
+                            c={isAfter(todo.endDate) ? 'red' : 'dimmed'}
+                            gap={8}
+                            align={'center'}
+                          >
+                            <CiTimer size={16} />
+                            <Text size="sm">{fromNow(todo.endDate)}</Text>
+                          </Flex>
+                        )}
+                      </Flex>
                     </Flex>
-                  </Flex>
-                </Box>
-              </Link>
-            </Grid.Col>
-          ))}
-        </Grid>
+                  </Box>
+                </Link>
+              </Grid.Col>
+            ))}
+          </Grid>
+        )}
       </Flex>
 
       {/* Overview */}
-      {barChartData && (
-        <Box mt={20} pt={20} className={clsx(styles.borderTop)}>
-          <Grid gutter={0}>
-            <Grid.Col span={12}>
-              <Title pl={12} order={3}>
-                Overview
-              </Title>
-              <Center>
+      <Box mt={20} pt={20} className={clsx(styles.borderTop)}>
+        <Grid gutter={0}>
+          <Grid.Col span={12}>
+            <Title pl={12} order={3}>
+              {t('label.overview')}
+            </Title>
+            <Center>
+              {isEmpty(barChartData) || isEmpty(todoData) ? (
+                <Empty />
+              ) : (
                 <BarChart width={400} height={240} data={barChartData}>
                   <XAxis dataKey={'status'} />
                   <YAxis />
                   <Tooltip />
                   <Bar dataKey="amount" fill="red">
-                    {barChartData.map((entry, index) => (
+                    {barChartData!.map((entry, index) => (
                       <Cell
                         key={`cell-${index}`}
                         fill={switchStatusColor(entry.status)}
@@ -177,11 +189,11 @@ function HomePage({ todoData }: { todoData: ITodo[] }) {
                     ))}
                   </Bar>
                 </BarChart>
-              </Center>
-            </Grid.Col>
-          </Grid>
-        </Box>
-      )}
+              )}
+            </Center>
+          </Grid.Col>
+        </Grid>
+      </Box>
     </>
   )
 }

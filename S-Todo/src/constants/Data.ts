@@ -53,6 +53,7 @@ export interface ITodoList
   extends Omit<ITodo, 'createdAt'>,
     Omit<IUser, 'createdAt'> {
   createdAt: string
+  totalParticipants: number
 }
 
 export interface ITodoData extends ITodo {

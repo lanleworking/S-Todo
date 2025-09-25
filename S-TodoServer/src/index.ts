@@ -8,6 +8,7 @@ import staticPlugin from '@elysiajs/static';
 const app = new Elysia();
 app.use(staticPlugin()).use(
     cors({
+        origin: ['http://localhost:3000', 'http://10.0.33.152:3000', 'https://10.0.33.152:3000'],
         credentials: true,
     }),
 );
@@ -24,6 +25,8 @@ pool.connect()
         console.error('Error connecting to the database:', err);
         process.exit(1);
     });
-app.listen(process.env.PORT!);
+app.listen({
+    port: process.env.PORT!,
+});
 console.log(`🦊 Elysia is running at ${process.env.CODE_ENV}`);
 console.log(`🦊 Elysia is running at ${app.server?.hostname}:${app.server?.port}`);

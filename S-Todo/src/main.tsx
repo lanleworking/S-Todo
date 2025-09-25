@@ -37,6 +37,12 @@ declare module '@tanstack/react-router' {
   }
 }
 
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('/firebase-messaging-sw.js').catch((err) => {
+    console.error('Service Worker registration failed:', err)
+  })
+}
+
 // Render the app
 const rootElement = document.getElementById('app')
 if (rootElement && !rootElement.innerHTML) {

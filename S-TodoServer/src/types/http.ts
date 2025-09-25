@@ -20,6 +20,8 @@ export enum EHttpCode {
     AUTHORIZED = 'AUTHORIZED',
     LOG_OUT = 'LOG_OUT',
     SERVER_ERROR = 'SERVER_ERROR',
+    UPDATED = 'UPDATED',
+    NO_CONTENT = 'NO_CONTENT',
 }
 
 export interface ICommonResponse {

@@ -9,9 +9,10 @@ import { Center } from '@mantine/core'
 type FileType = Parameters<GetProp<UploadProps, 'beforeUpload'>>[0]
 type UploadAvtBtnType = {
   setAvtFile: Dispatch<SetStateAction<File | null>>
+  disabled?: boolean
 }
 
-const UploadAvtBtn = ({ setAvtFile }: UploadAvtBtnType) => {
+const UploadAvtBtn = ({ setAvtFile, disabled }: UploadAvtBtnType) => {
   const [fileList, setFileList] = useState<UploadFile[]>([])
 
   const getBase64 = (file: FileType): Promise<string> =>
@@ -75,6 +76,8 @@ const UploadAvtBtn = ({ setAvtFile }: UploadAvtBtnType) => {
         onChange={handleChange}
         onPreview={handlePreview}
         customRequest={customRequest}
+        onRemove={() => setAvtFile(null)}
+        disabled={disabled}
         // action="https://660d2bd96ddfa2943b33731c.mockapi.io/api/upload"
       >
         {fileList.length >= 1 ? null : uploadButton}

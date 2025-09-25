@@ -35,6 +35,7 @@ import { HiOutlineInformationCircle } from 'react-icons/hi'
 import { isEmpty } from 'lodash'
 import { Empty } from 'antd'
 import AnimatedNumber from '@/components/Animate/AnimatedNumber'
+import { useTranslation } from 'react-i18next'
 
 type TodoItemProps = {
   data: ITodoData
@@ -49,6 +50,7 @@ function TodoItem({ data }: TodoItemProps) {
   })
   const SERVER_URL = import.meta.env.VITE_API_URL
   const { users } = todoData
+  const { t } = useTranslation()
   const { getPaymentLogs, getTodoById } = useTodo()
   const { formatDateTime, fromNow, isAfter } = useDayJs()
   const [
@@ -56,11 +58,7 @@ function TodoItem({ data }: TodoItemProps) {
     { open: openPaymentModal, close: closePaymentModal },
   ] = useDisclosure(false)
 
-  const {
-    data: todoQueryData,
-    isLoading: isLoadingTodo,
-    refetch: refetchTodo,
-  } = getTodoById(todoData.id)
+  const { data: todoQueryData, refetch: refetchTodo } = getTodoById(todoData.id)
   const {
     data: paymentLogsData,
     refetch: refetchPaymentLogs,
@@ -93,7 +91,7 @@ function TodoItem({ data }: TodoItemProps) {
         data={todoData}
         open={openedPaymentModal}
         onClose={closePaymentModal}
-        title="Donate"
+        title={t('label.donate')}
       />
       <Stack>
         <TitleWithReturn
@@ -118,7 +116,7 @@ function TodoItem({ data }: TodoItemProps) {
                 >
                   <Flex align={'center'} className="text-purple-600" gap={8}>
                     <FaPencilAlt />
-                    <Text fw={500}>Description</Text>
+                    <Text fw={500}>{t('label.description')}</Text>
                   </Flex>
                   <Typography>
                     <div
@@ -138,16 +136,16 @@ function TodoItem({ data }: TodoItemProps) {
               >
                 <Flex className="text-purple-600" gap={8} align={'center'}>
                   <FaHistory />
-                  <Text>Activity Logs</Text>
+                  <Text>{t('label.logs')}</Text>
                 </Flex>
                 <TableScrollContainer minWidth={600}>
                   <Table my={12}>
                     <Table.Thead>
                       <Table.Tr>
-                        <Table.Th>Time</Table.Th>
-                        <Table.Th>User</Table.Th>
-                        <Table.Th>Action</Table.Th>
-                        <Table.Th>Note</Table.Th>
+                        <Table.Th>{t('label.time')}</Table.Th>
+                        <Table.Th>{t('label.user')}</Table.Th>
+                        <Table.Th>{t('label.action')}</Table.Th>
+                        <Table.Th>{t('label.note')}</Table.Th>
                       </Table.Tr>
                     </Table.Thead>
 
@@ -220,7 +218,7 @@ function TodoItem({ data }: TodoItemProps) {
                 >
                   <Flex className="text-purple-600" align={'center'} gap={4}>
                     <MdAttachMoney />
-                    <Text>Fund</Text>
+                    <Text>{t('label.fund')}</Text>
                   </Flex>
 
                   {todoData?.expectedAmount && todoData.expectedAmount > 0 ? (
@@ -237,7 +235,7 @@ function TodoItem({ data }: TodoItemProps) {
                         justify={{ base: 'space-between' }}
                         gap={{ base: 8 }}
                       >
-                        <Text>Total:</Text>
+                        <Text>{t('label.total')}:</Text>
                         <NumberFormatter
                           className="text-green-600"
                           suffix="đ"
@@ -251,7 +249,7 @@ function TodoItem({ data }: TodoItemProps) {
                         direction={{ base: 'row', sm: 'column' }}
                         gap={{ base: 8 }}
                       >
-                        <Text>Goal:</Text>
+                        <Text>{t('label.goal')}:</Text>
                         <NumberFormatter
                           className="text-purple-600"
                           suffix="đ"
@@ -296,7 +294,7 @@ function TodoItem({ data }: TodoItemProps) {
                     mt={20}
                     leftSection={<FaDonate />}
                   >
-                    Donate
+                    {t('button.donate')}
                   </Button>
                 </Card>
               )}
@@ -316,7 +314,7 @@ function TodoItem({ data }: TodoItemProps) {
                   gap={8}
                 >
                   <FaUserGroup />
-                  <Text fw={500}>Users</Text>
+                  <Text fw={500}>{t('label.user')}:</Text>
                   <Text>({todoData.users?.length || ''})</Text>
                 </Flex>
                 <Avatar.Group>
@@ -350,11 +348,11 @@ function TodoItem({ data }: TodoItemProps) {
                   mb={8}
                 >
                   <HiOutlineInformationCircle />
-                  <Text fw={500}>Information</Text>
+                  <Text fw={500}>{t('label.information')}</Text>
                 </Flex>
                 <Stack gap={'xs'}>
                   <Flex align={'center'} justify={'space-between'}>
-                    <Text size="sm">Status</Text>
+                    <Text size="sm">{t('label.status')}</Text>
                     <Badge
                       bd={'1px solid'}
                       variant="light"
@@ -365,7 +363,7 @@ function TodoItem({ data }: TodoItemProps) {
                   </Flex>
                   <Divider />
                   <Flex align={'center'} justify={'space-between'}>
-                    <Text size="sm">Priority</Text>
+                    <Text size="sm">{t('label.priority')}</Text>
                     <Badge
                       bd={'1px solid'}
                       variant="light"
@@ -376,7 +374,7 @@ function TodoItem({ data }: TodoItemProps) {
                   </Flex>
                   <Divider />
                   <Flex align={'center'} justify={'space-between'}>
-                    <Text size="sm">Start Date</Text>
+                    <Text size="sm">{t('label.startDate')}</Text>
                     <Tooltip label={formatDateTime(todoData.startDate!)}>
                       <Text size="sm">{fromNow(todoData.startDate!)}</Text>
                     </Tooltip>
@@ -385,7 +383,7 @@ function TodoItem({ data }: TodoItemProps) {
                   {todoData?.endDate && (
                     <>
                       <Flex align={'center'} justify={'space-between'}>
-                        <Text size="sm">End Date</Text>
+                        <Text size="sm">{t('label.endDate')}</Text>
                         <Tooltip label={formatDateTime(todoData.endDate!)}>
                           <Text
                             c={isAfter(todoData.endDate!) ? 'red' : 'black'}
@@ -399,12 +397,12 @@ function TodoItem({ data }: TodoItemProps) {
                     </>
                   )}
                   <Flex align={'center'} justify={'space-between'}>
-                    <Text size="sm">Created At</Text>
+                    <Text size="sm">{t('label.createdAt')}</Text>
                     <Text size="sm">{formatDateTime(todoData.createdAt)}</Text>
                   </Flex>
                   <Divider />
                   <Flex align={'center'} justify={'space-between'}>
-                    <Text size="sm">Updated At</Text>
+                    <Text size="sm">{t('label.updatedAt')}</Text>
                     <Text size="sm">{formatDateTime(todoData.updatedAt!)}</Text>
                   </Flex>
                 </Stack>

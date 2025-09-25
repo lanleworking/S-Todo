@@ -1,4 +1,4 @@
-import { and, desc, eq, isNotNull, or, sql, sum } from 'drizzle-orm';
+import { and, desc, eq, isNotNull, sql } from 'drizzle-orm';
 import { db } from '../../drizzle/db';
 import { paymentLogs, todoOrders, todos, todoUsers, users } from '../../drizzle/schema';
 import { EHttpCode, EStatusCodes } from '../../types/http';
@@ -58,11 +58,23 @@ const getListTodo = async (userId: string) => {
             shortDescription: todos.shortDescription,
             avatarUrl: users.avatarUrl,
             fullName: users.fullName || users.userId,
+            totalParticipants: sql<number>`0`,
         })
         .from(todoUsers)
         .innerJoin(todos, and(eq(todoUsers.todoId, todos.id), and(eq(todoUsers.userId, userId))))
         .innerJoin(users, eq(todos.createdby, users.userId))
         .orderBy(desc(todoUsers.assignedAt), desc(todos.createdAt));
+
+    // get total participants for each todo
+    for (const todo of allUserTodos) {
+        const totalParticipants = await db
+            .select({
+                total: sql<number>`count(*)`,
+            })
+            .from(todoUsers)
+            .where(eq(todoUsers.todoId, todo.id));
+        todo['totalParticipants'] = totalParticipants[0]?.total ?? 0;
+    }
 
     return allUserTodos;
 };
@@ -133,6 +145,7 @@ export const paymentLogsData = async (payload: { todoId: number; limit: number; 
         .from(paymentLogs)
         .innerJoin(users, eq(paymentLogs.createdBy, users.userId))
         .where(and(eq(paymentLogs.todoId, todoId), isNotNull(users.userId)))
+        .orderBy(desc(paymentLogs.createdAt))
         .limit(limit)
         .offset(offset);
 

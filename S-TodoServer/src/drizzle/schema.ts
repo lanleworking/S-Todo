@@ -105,3 +105,12 @@ export const todoOrders = pgTable('todo_orders', {
         .notNull()
         .references(() => todos.id, { onDelete: 'cascade', onUpdate: 'cascade' }),
 });
+
+export const userTokens = pgTable('user_tokens', {
+    id: serial('id').primaryKey(),
+    userId: varchar('user_id', { length: 50 })
+        .notNull()
+        .references(() => users.userId, { onDelete: 'cascade', onUpdate: 'cascade' }),
+    token: varchar('token', { length: 255 }).notNull(),
+    createdAt: timestamp('created_at', { mode: 'string' }).defaultNow(),
+});

@@ -1,7 +1,9 @@
 import axiosClient from '@/config/axios'
+import { listenForMessages, requestNotificationPermission } from '@/firebase'
 import { MainLayout } from '@/layouts/MainLayout'
 import HomePage from '@/pages/main/HomePage'
 import { createFileRoute, useLoaderData } from '@tanstack/react-router'
+import { useEffect } from 'react'
 
 export const Route = createFileRoute('/')({
   loader: async () => {
@@ -13,8 +15,15 @@ export const Route = createFileRoute('/')({
 
 function App() {
   const todoData = useLoaderData({ from: '/' })
-  // const isMobile = useMediaQuery(MOBILE_MEDIAQUERY)
-  // if (isMobile) return <h1>Mobile UI is under development, please wait!</h1>
+
+  useEffect(() => {
+    requestNotificationPermission().catch((err) => {
+      console.error('Notification permission denied:', err)
+    })
+
+    listenForMessages()
+  }, [])
+
   return (
     <MainLayout>
       <HomePage todoData={todoData} />

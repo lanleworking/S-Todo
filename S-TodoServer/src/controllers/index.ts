@@ -9,3 +9,5 @@ export * as getAllTodoController from './todo/get.controller';
 export * as updateTodoController from './todo/update.controller';
 export * as getUserController from './user/get.controller';
 export * as paymentController from './payos/payment.controller';
+export * as updateUserController from './user/update.controller';
+export * as userCreateController from './user/create.controller';

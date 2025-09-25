@@ -1,1 +1,1 @@
-export const protocol = process.env.NODE_ENV === 'production' ? 'https://' : 'http://';
+export const protocol = process.env.CODE_ENV === 'production' ? 'https://' : 'http://';
