@@ -31,7 +31,7 @@ function TodoListTable({ data }: { data: ITodoList[] }) {
   const { t } = useTranslation()
 
   useEffect(() => {
-    document.title = 'Todo List | S-Todo'
+    document.title = `${t('label.todoList')} | S-Todo`
   }, [])
 
   return (

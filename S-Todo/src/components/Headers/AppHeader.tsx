@@ -30,7 +30,9 @@ function AppHeader() {
           <Flex gap={8}>
             {LINKS.map((l, i) => (
               <NavLink
-                hidden={l.notAllowRole === user?.role}
+                hidden={
+                  l.notAllowRole === user?.role || l.showOnly === 'mobile'
+                }
                 component={Link}
                 key={i}
                 style={{

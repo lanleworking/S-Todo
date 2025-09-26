@@ -3,6 +3,7 @@ import type { QueryClient } from '@tanstack/react-query'
 import { Toaster } from 'react-hot-toast'
 import AuthProvider from '@/providers/Provider/AuthProvider'
 import NotFound from '@/pages/not-found'
+import { HelmetProvider } from 'react-helmet-async'
 
 interface MyRouterContext {
   queryClient: QueryClient
@@ -11,10 +12,12 @@ interface MyRouterContext {
 export const Route = createRootRouteWithContext<MyRouterContext>()({
   component: () => (
     <>
-      <AuthProvider>
-        <Toaster />
-        <Outlet />
-      </AuthProvider>
+      <HelmetProvider>
+        <AuthProvider>
+          <Toaster />
+          <Outlet />
+        </AuthProvider>
+      </HelmetProvider>
     </>
   ),
   notFoundComponent: () => <NotFound />,

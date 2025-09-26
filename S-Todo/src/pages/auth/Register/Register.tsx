@@ -14,7 +14,7 @@ import { IoMdMail } from 'react-icons/io'
 import { useForm } from '@mantine/form'
 import { validateForm } from '@/utils/validate/validateForm'
 import { useTranslation } from 'react-i18next'
-import { useContext, useState } from 'react'
+import { useContext, useEffect, useState } from 'react'
 import useAuth from '@/hooks/useAuth'
 import { fetchError } from '@/utils/toast/fetchError'
 import { AuthContext } from '@/providers/Context/AuthContext'
@@ -76,6 +76,10 @@ function Register() {
       },
     })
   }
+
+  useEffect(() => {
+    document.title = `${t('register')} | S-Todo`
+  }, [])
 
   return (
     <Box>

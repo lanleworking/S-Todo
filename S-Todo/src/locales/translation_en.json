@@ -4,6 +4,7 @@
   "fullName": "Full Name",
   "password": "Password",
   "register": "Register",
+  "resetPassword": "Reset Password",
   "forgotPassword": "Forgot Password?",
   "email": "Email",
   "usernameDescription": "This will be used for internal transfer.",
@@ -63,6 +64,7 @@
     "notify": "Notify",
     "home": "Home",
     "create": "Create",
+    "pageNotExist": "Page not exist",
     "paymentModal": {
       "info": "Payment Information",
       "openBankingLink": "Click here to view payment details",

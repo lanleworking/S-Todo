@@ -15,7 +15,7 @@ import { Link, useNavigate } from '@tanstack/react-router'
 import { EResetPasswordMode } from '@/constants/App'
 import useAuth from '@/hooks/useAuth'
 import { fetchError } from '@/utils/toast/fetchError'
-import { useContext } from 'react'
+import { useContext, useEffect } from 'react'
 import { AuthContext } from '@/providers/Context/AuthContext'
 
 function Login() {
@@ -56,6 +56,10 @@ function Login() {
       },
     })
   }
+
+  useEffect(() => {
+    document.title = `${t('login')} | S-Todo`
+  }, [])
 
   return (
     <form onSubmit={onSubmit(handleLogin)}>

@@ -1,6 +1,7 @@
 import { EResetPasswordMode } from '@/constants/App'
 import { Button, PasswordInput, Stack, TextInput } from '@mantine/core'
 import { useNavigate, useSearch } from '@tanstack/react-router'
+import { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import { FaUser, FaKey } from 'react-icons/fa'
@@ -11,6 +12,10 @@ function ResetPassword() {
   const query = useSearch({ from: '/auth/reset-password' }) as {
     mode?: EResetPasswordMode
   }
+
+  useEffect(() => {
+    document.title = `${t('resetPassword')} | S-Todo`
+  }, [])
 
   if (query?.mode === EResetPasswordMode.FORGOT) {
     return (

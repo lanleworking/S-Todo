@@ -1,11 +1,16 @@
 import { Button, Flex } from '@mantine/core'
 import { useNavigate } from '@tanstack/react-router'
 import { Result } from 'antd'
+import { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 
 function NotFound() {
   const { t } = useTranslation()
   const navigate = useNavigate()
+
+  useEffect(() => {
+    document.title = `${t('label.pageNotExist')} | S-Todo`
+  }, [])
 
   return (
     <Flex

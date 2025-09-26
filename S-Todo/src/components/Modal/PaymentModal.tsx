@@ -72,6 +72,7 @@ function PaymentModal({
       amount: (value) =>
         validateForm(value, t, {
           min: 2000,
+          max: 5000000,
         }),
     },
   })

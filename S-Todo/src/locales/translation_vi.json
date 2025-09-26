@@ -3,6 +3,7 @@
   "username": "Username / Email",
   "password": "Mật khẩu",
   "register": "Đăng ký",
+  "resetPassword": "Đặt lại mật khẩu",
   "fullName": "Họ Tên",
   "forgotPassword": "Quên mật khẩu?",
   "email": "Email",
@@ -63,6 +64,7 @@
     "notify": "Thông báo",
     "home": "Trang chủ",
     "create": "Tạo ",
+    "pageNotExist": "Trang không tồn tại",
     "paymentModal": {
       "info": "Thông tin thanh toán",
       "openBankingLink": "Nhấn vào đây để xem chi tiết thanh toán",

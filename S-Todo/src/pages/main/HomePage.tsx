@@ -41,6 +41,7 @@ function HomePage({ todoData }: { todoData: ITodo[] }) {
   const { data: barChartData, refetch: refetchBarChart } = getTodoStatusBarChart
 
   useEffect(() => {
+    document.title = `${t('label.home')} | S-Todo`
     refetchBarChart()
   }, [])
 

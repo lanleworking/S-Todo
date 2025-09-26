@@ -24,17 +24,18 @@ const UploadAvtBtn = ({ setAvtFile, disabled }: UploadAvtBtnType) => {
     })
 
   const beforeUpload = (file: FileType) => {
-    const isJpgOrPng =
-      file.type === 'image/jpeg' ||
-      file.type === 'image/png' ||
-      file.type === 'image/jpg' ||
-      file.type === 'image/webp' ||
-      file.type === 'image/gif'
+    // Check if file type starts with "image/"
+    const isImage = file.type.startsWith('image/')
     const isLt10M = file.size / 1024 / 1024 < 10
 
-    if (!isJpgOrPng || !isLt10M) {
-      toast.error('You can only upload JPG/PNG files smaller than 10MB!')
-      return Upload.LIST_IGNORE // prevent adding to fileList
+    if (!isImage) {
+      toast.error('You can only upload image files!')
+      return Upload.LIST_IGNORE
+    }
+
+    if (!isLt10M) {
+      toast.error('Image must be smaller than 10MB!')
+      return Upload.LIST_IGNORE
     }
 
     return true
@@ -65,7 +66,6 @@ const UploadAvtBtn = ({ setAvtFile, disabled }: UploadAvtBtnType) => {
       <Center>
         <FiUpload />
       </Center>
-      {/* {loading ? <LoadingOutlined /> : <PlusOutlined />} */}
       <div style={{ marginTop: 8 }}>Avatar</div>
     </button>
   )
@@ -83,7 +83,7 @@ const UploadAvtBtn = ({ setAvtFile, disabled }: UploadAvtBtnType) => {
         customRequest={customRequest}
         onRemove={() => setAvtFile(null)}
         disabled={disabled}
-        // action="https://660d2bd96ddfa2943b33731c.mockapi.io/api/upload"
+        accept="image/*"
       >
         {fileList.length >= 1 ? null : uploadButton}
       </Upload>

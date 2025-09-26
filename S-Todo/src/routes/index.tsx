@@ -1,3 +1,4 @@
+import MetaTag from '@/components/Meta'
 import axiosClient from '@/config/axios'
 import { listenForMessages, requestNotificationPermission } from '@/firebase'
 import { MainLayout } from '@/layouts/MainLayout'
@@ -25,8 +26,14 @@ function App() {
   }, [])
 
   return (
-    <MainLayout>
-      <HomePage todoData={todoData} />
-    </MainLayout>
+    <>
+      <MetaTag
+        title="Home | S-Todo"
+        description="A Project made by Snw - Have Fun to use UwU"
+      />
+      <MainLayout>
+        <HomePage todoData={todoData} />
+      </MainLayout>
+    </>
   )
 }

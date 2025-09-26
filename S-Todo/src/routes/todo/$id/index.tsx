@@ -1,4 +1,6 @@
+import MetaTag from '@/components/Meta'
 import axiosClient from '@/config/axios'
+import type { ITodoData } from '@/constants/Data'
 import { TodoItem } from '@/pages/todo/item'
 import { createFileRoute, useLoaderData } from '@tanstack/react-router'
 
@@ -12,6 +14,14 @@ export const Route = createFileRoute('/todo/$id/')({
 })
 
 function RouteComponent() {
-  const todoItemData = useLoaderData({ from: '/todo/$id/' })
-  return <TodoItem data={todoItemData} />
+  const todoItemData = useLoaderData({ from: '/todo/$id/' }) as ITodoData
+  return (
+    <>
+      <MetaTag
+        title={`Todo | ${todoItemData.title}`}
+        description={todoItemData.shortDescription}
+      />
+      <TodoItem data={todoItemData} />
+    </>
+  )
 }

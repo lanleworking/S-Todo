@@ -3,16 +3,8 @@ import AppHeader from '@/components/Headers/AppHeader'
 import { LINKS } from '@/constants/App'
 import { MOBILE_MEDIAQUERY } from '@/constants/MediaQuery'
 import { AuthContext } from '@/providers/Context/AuthContext'
-import {
-  AppShell,
-  Box,
-  Burger,
-  Flex,
-  NavLink,
-  Stack,
-  Text,
-} from '@mantine/core'
-import { useDisclosure, useMediaQuery } from '@mantine/hooks'
+import { AppShell, Box, Flex, NavLink, Text } from '@mantine/core'
+import { useMediaQuery } from '@mantine/hooks'
 import { Link, useRouter } from '@tanstack/react-router'
 import { useContext } from 'react'
 import { useTranslation } from 'react-i18next'
@@ -25,7 +17,6 @@ function MainLayout({ children }: { children: React.ReactNode }) {
   const { t } = useTranslation()
   const { user } = useContext(AuthContext)
   const isMobile = useMediaQuery(MOBILE_MEDIAQUERY)
-  const [opened, { toggle }] = useDisclosure(false)
   const path = router.state.location.pathname ?? ''
 
   const iconMenuSwitch = (type: string) => {
