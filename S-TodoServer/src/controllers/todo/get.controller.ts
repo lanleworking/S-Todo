@@ -115,7 +115,7 @@ const getTodoById = async (
             totalAmount: sql<number>`sum(${paymentLogs.amount})`,
         })
         .from(paymentLogs)
-        .where(eq(paymentLogs.todoId, todoId));
+        .where(and(eq(paymentLogs.todoId, todoId), eq(paymentLogs.status, 'PAID')));
 
     return {
         ...todo,
@@ -144,7 +144,7 @@ export const paymentLogsData = async (payload: { todoId: number; limit: number; 
         })
         .from(paymentLogs)
         .innerJoin(users, eq(paymentLogs.createdBy, users.userId))
-        .where(and(eq(paymentLogs.todoId, todoId), isNotNull(users.userId)))
+        .where(and(eq(paymentLogs.todoId, todoId), isNotNull(users.userId), eq(paymentLogs.status, 'PAID')))
         .orderBy(desc(paymentLogs.createdAt))
         .limit(limit)
         .offset(offset);
