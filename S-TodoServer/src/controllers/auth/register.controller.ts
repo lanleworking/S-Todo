@@ -41,6 +41,7 @@ const register = async (payload: RegisterType, jwt: IJWTService, set: any) => {
         .insert(users)
         .values({
             ...payload,
+            userId,
             password: hashedPassword,
             avatarUrl: avtUrl,
         })
