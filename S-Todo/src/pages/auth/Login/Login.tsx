@@ -33,15 +33,9 @@ function Login() {
     validate: {
       username: (value) =>
         validateForm(value, t, {
-          required: true,
           isNonWhitespace: true,
-          maxLength: 20,
         }),
-      password: (value) =>
-        validateForm(value, t, {
-          required: true,
-          maxLength: 50,
-        }),
+      password: (value) => validateForm(value, t),
     },
   })
 
