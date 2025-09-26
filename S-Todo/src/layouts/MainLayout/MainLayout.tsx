@@ -1,13 +1,23 @@
+import AvtWithMenu from '@/components/AvtWithMenu'
 import AppHeader from '@/components/Headers/AppHeader'
 import { LINKS } from '@/constants/App'
 import { MOBILE_MEDIAQUERY } from '@/constants/MediaQuery'
 import { AuthContext } from '@/providers/Context/AuthContext'
-import { AppShell, Box, Burger, NavLink, Stack } from '@mantine/core'
+import {
+  AppShell,
+  Box,
+  Burger,
+  Flex,
+  NavLink,
+  Stack,
+  Text,
+} from '@mantine/core'
 import { useDisclosure, useMediaQuery } from '@mantine/hooks'
 import { Link, useRouter } from '@tanstack/react-router'
 import { useContext } from 'react'
 import { useTranslation } from 'react-i18next'
-import { CiBoxList } from 'react-icons/ci'
+import { CiBoxList, CiCirclePlus } from 'react-icons/ci'
+import { FaHouse } from 'react-icons/fa6'
 import { RiListSettingsLine } from 'react-icons/ri'
 
 function MainLayout({ children }: { children: React.ReactNode }) {
@@ -18,38 +28,39 @@ function MainLayout({ children }: { children: React.ReactNode }) {
   const [opened, { toggle }] = useDisclosure(false)
   const path = router.state.location.pathname ?? ''
 
+  const iconMenuSwitch = (type: string) => {
+    switch (type) {
+      case 'list':
+        return <CiBoxList />
+      case 'manage':
+        return <RiListSettingsLine />
+      case 'home':
+        return <FaHouse />
+      case 'create':
+        return <CiCirclePlus />
+      default:
+        return null
+    }
+  }
+
   return (
     <AppShell
       header={{
-        height: 60,
+        height: { base: 0, sm: 60 },
       }}
-      navbar={
-        isMobile
-          ? {
-              width: 100,
-              breakpoint: 'sm',
-              collapsed: {
-                mobile: !opened,
-              },
-            }
-          : undefined
-      }
     >
-      <AppShell.Header>
-        <AppHeader
-          burgerBtb={
-            <Burger onClick={toggle} hiddenFrom="sm" opened={opened} />
-          }
-        />
-      </AppShell.Header>
+      {!isMobile && (
+        <AppShell.Header>
+          <AppHeader />
+        </AppShell.Header>
+      )}
+
       {isMobile && (
-        <AppShell.Navbar p="md">
-          <Stack>
+        <AppShell.Footer>
+          <Flex align={'center'} justify="space-around" py={10}>
             {LINKS.map((l, i) => (
               <NavLink
-                leftSection={
-                  l.type === 'list' ? <CiBoxList /> : <RiListSettingsLine />
-                }
+                leftSection={iconMenuSwitch(l.type)}
                 hidden={l.notAllowRole === user?.role}
                 component={Link}
                 key={i}
@@ -58,15 +69,29 @@ function MainLayout({ children }: { children: React.ReactNode }) {
                   width: 'fit-content',
                 }}
                 to={l.href}
-                label={t(l.label)}
-                active={path.includes(l.href)}
+                label={<Text size={'0.6rem'}>{t(l.label)}</Text>}
+                styles={{
+                  root: {
+                    display: 'block',
+                  },
+                  section: {
+                    marginBottom: '4px',
+                    marginRight: 0,
+                  },
+                }}
+                active={path === l.href}
               />
             ))}
-          </Stack>
-        </AppShell.Navbar>
+            <AvtWithMenu />
+          </Flex>
+        </AppShell.Footer>
       )}
-      <AppShell.Main>
-        <Box px={{ base: 20, sm: 40 }} mt={20}>
+      <AppShell.Main pb={{ base: 60, sm: 0 }}>
+        <Box
+          px={{ base: 20, sm: 40 }}
+          py={{ base: 20, sm: 0 }}
+          mt={{ base: 0, sm: 20 }}
+        >
           {children}
         </Box>
       </AppShell.Main>

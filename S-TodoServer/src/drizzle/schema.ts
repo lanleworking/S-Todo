@@ -43,6 +43,7 @@ export const todos = pgTable('todos', {
     type: varchar('type', { length: 50, enum: [ETodoType.PERSONAL, ETodoType.FUND] }).notNull(),
     expectedAmount: integer('expected_amount'),
     shared: boolean('shared').default(false),
+    notify: boolean('notify').default(false),
     startDate: timestamp('start_date', { mode: 'string' }),
     endDate: timestamp('end_date', { mode: 'string' }),
     createdAt: timestamp('created_at', { mode: 'string' }).defaultNow(),
@@ -112,5 +113,21 @@ export const userTokens = pgTable('user_tokens', {
         .notNull()
         .references(() => users.userId, { onDelete: 'cascade', onUpdate: 'cascade' }),
     token: varchar('token', { length: 255 }).notNull(),
+    createdAt: timestamp('created_at', { mode: 'string' }).defaultNow(),
+});
+
+export const todoNotifications = pgTable('todo_notifications', {
+    id: serial('id').primaryKey(),
+    todoId: integer('todo_id')
+        .notNull()
+        .references(() => todos.id, { onDelete: 'cascade', onUpdate: 'cascade' }),
+    userId: varchar('user_id', { length: 50 })
+        .notNull()
+        .references(() => users.userId, { onDelete: 'cascade', onUpdate: 'cascade' }),
+    notiTitle: varchar('title', { length: 50 }).default('STodo'),
+    notiMessage: varchar('message', { length: 255 }).default("It's time for your task!"),
+    notiType: varchar('type', { length: 50, enum: ['daily', 'monthly'] }).notNull(),
+    notiTime: varchar('time', { length: 10 }).notNull(),
+    notiDayOfMonth: integer('day_of_month'),
     createdAt: timestamp('created_at', { mode: 'string' }).defaultNow(),
 });

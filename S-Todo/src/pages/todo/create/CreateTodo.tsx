@@ -1,6 +1,7 @@
 import { CancelBtn } from '@/components/Buttons/CancelBtn'
 import { RichTextEditor } from '@/components/RichTextEditor'
 import { TitleWithReturn } from '@/components/TitleWithReturn'
+import { ENotiType } from '@/constants/App'
 import {
   ETodoPriority,
   ETodoStatus,
@@ -28,7 +29,7 @@ import {
   TextInput,
   Title,
 } from '@mantine/core'
-import { DatePickerInput } from '@mantine/dates'
+import { DatePickerInput, DateTimePicker, TimePicker } from '@mantine/dates'
 import { useForm } from '@mantine/form'
 import { useNavigate } from '@tanstack/react-router'
 import { useContext, useEffect, useMemo, useState } from 'react'
@@ -48,7 +49,39 @@ type CreateTodoProps = {
   userOptionsData: ISelectOption[]
 }
 
+const switchNotiTime = (notiType: string, props: { key: any; prop: any }) => {
+  switch (notiType) {
+    case ENotiType.MONTHLY:
+      return (
+        <DateTimePicker
+          withAsterisk
+          label="Time"
+          key={props.key}
+          {...props.prop}
+          placeholder="Choose date"
+          leftSection={<CiCalendarDate />}
+          level="month"
+          valueFormat="[At] 'HH:mm' [On] 'DD' [Per Month]"
+          monthLabelFormat={'MMMM'}
+        />
+      )
+    case ENotiType.DAILY:
+      return (
+        <TimePicker
+          key={props.key}
+          {...props.prop}
+          withAsterisk
+          label="Time"
+          leftSection={<CiCalendarDate />}
+        />
+      )
+    default:
+      return null
+  }
+}
+
 function CreateTodo({ userOptionsData }: CreateTodoProps) {
+  const [newTodoId, setNewTodoId] = useState<number | null>(null)
   const [descValue, setDescValue] = useState<string>('')
   const navigate = useNavigate()
   const { t } = useTranslation()
@@ -84,6 +117,11 @@ function CreateTodo({ userOptionsData }: CreateTodoProps) {
       shared: false,
       sharedWith: [] as string[],
       shortDescription: '',
+      notify: false,
+      notiType: '',
+      notiTime: null,
+      notiTitle: '',
+      notiMessage: '',
     },
     validate: {
       title: (value) =>
@@ -105,23 +143,31 @@ function CreateTodo({ userOptionsData }: CreateTodoProps) {
       )
       return
     }
+
     const modifiedFormData = {
       ...formData,
       description: descValue,
       sharedWith: formData.shared ? formData.sharedWith : [],
     }
+
     mutateNewTodo(modifiedFormData, {
       onSuccess: (data) => {
-        navigate({
-          to: '/todo/$id',
-          params: {
-            id: String(data.id),
-          },
-        })
+        setNewTodoId(data.data.todoId)
       },
       onError: (error) => fetchError(error),
     })
   }
+
+  useEffect(() => {
+    if (newTodoId) {
+      navigate({
+        to: '/todo/$id',
+        params: {
+          id: String(newTodoId),
+        },
+      })
+    }
+  }, [newTodoId])
 
   useEffect(() => {
     document.title = 'Create New Todo | S-Todo'
@@ -155,7 +201,7 @@ function CreateTodo({ userOptionsData }: CreateTodoProps) {
             />
           </Grid.Col>
 
-          <Grid.Col span={6}>
+          <Grid.Col span={{ base: 12, sm: 6 }}>
             <TextInput
               description={'Max characters: 255'}
               key={key('shortDescription')}
@@ -167,7 +213,7 @@ function CreateTodo({ userOptionsData }: CreateTodoProps) {
             />
           </Grid.Col>
 
-          <Grid.Col span={6}>
+          <Grid.Col span={{ base: 12, sm: 6 }}>
             <RadioGroup
               label="Status "
               title="Status"
@@ -188,7 +234,7 @@ function CreateTodo({ userOptionsData }: CreateTodoProps) {
             </RadioGroup>
           </Grid.Col>
 
-          <Grid.Col span={6}>
+          <Grid.Col span={{ base: 12, sm: 6 }}>
             <DatePickerInput
               clearable
               {...getInputProps('startDate')}
@@ -201,7 +247,7 @@ function CreateTodo({ userOptionsData }: CreateTodoProps) {
             />
           </Grid.Col>
 
-          <Grid.Col span={6}>
+          <Grid.Col span={{ base: 12, sm: 6 }}>
             <DatePickerInput
               clearable
               label="End Date"
@@ -213,7 +259,7 @@ function CreateTodo({ userOptionsData }: CreateTodoProps) {
             />
           </Grid.Col>
 
-          <Grid.Col span={6}>
+          <Grid.Col span={{ base: 12, sm: 6 }}>
             <Select
               {...getInputProps('priority')}
               key={key('priority')}
@@ -239,7 +285,7 @@ function CreateTodo({ userOptionsData }: CreateTodoProps) {
             />
           </Grid.Col>
 
-          <Grid.Col span={6}>
+          <Grid.Col span={{ base: 12, sm: 6 }}>
             <Select
               {...getInputProps('type')}
               key={key('type')}
@@ -347,38 +393,60 @@ function CreateTodo({ userOptionsData }: CreateTodoProps) {
                       <Title order={4}>NOTIFICATION</Title>
                     </Flex>
 
-                    <Switch label="Enabled?" checked />
+                    <Switch
+                      key={key('notify')}
+                      {...getInputProps('notify')}
+                      label="Enabled?"
+                    />
                   </Flex>
-                  <Grid>
-                    <Grid.Col span={6}>
-                      <Select
-                        clearable
-                        withAsterisk
-                        leftSection={<IoMdNotificationsOutline />}
-                        label="Notification Type"
-                        placeholder="Choose type"
-                        data={[
-                          { value: 'monthly', label: 'Monthly' },
-                          { value: 'daily', label: 'Daily' },
-                        ]}
-                      />
-                    </Grid.Col>
-                    <Grid.Col span={6}>
-                      <DatePickerInput
-                        withAsterisk
-                        label="Notify at"
-                        placeholder="Choose date"
-                        leftSection={<CiCalendarDate />}
-                        level="month"
-                        valueFormat="[On] DD [Per Month]"
-                        monthLabelFormat={'MMMM'}
-                      />
-                    </Grid.Col>
+                  {getValues().notify && (
+                    <Grid>
+                      <Grid.Col span={{ base: 12, sm: 6 }}>
+                        <Select
+                          {...getInputProps('notiType')}
+                          key={key('notiType')}
+                          clearable
+                          withAsterisk
+                          leftSection={<IoMdNotificationsOutline />}
+                          label="Notification Type"
+                          placeholder="Choose type"
+                          data={[
+                            { value: 'monthly', label: 'Monthly' },
+                            { value: 'daily', label: 'Daily' },
+                          ]}
+                        />
+                      </Grid.Col>
+                      <Grid.Col span={{ base: 12, sm: 6 }}>
+                        {switchNotiTime(getValues().notiType, {
+                          key: key('notiTime'),
+                          prop: { ...getInputProps('notiTime') },
+                        })}
+                      </Grid.Col>
 
-                    <Grid.Col span={12}>
-                      <TextInput />
-                    </Grid.Col>
-                  </Grid>
+                      {getValues().notiType && (
+                        <>
+                          <Grid.Col span={{ base: 12, sm: 6 }}>
+                            <TextInput
+                              label="Title"
+                              withAsterisk
+                              key={key('notiTitle')}
+                              {...getInputProps('notiTitle')}
+                              placeholder='e.g. "Reminder for todo ..."'
+                            />
+                          </Grid.Col>
+                          <Grid.Col span={{ base: 12, sm: 6 }}>
+                            <TextInput
+                              label="Message"
+                              withAsterisk
+                              key={key('notiMessage')}
+                              {...getInputProps('notiMessage')}
+                              placeholder='e.g. "You have a todo ..."'
+                            />
+                          </Grid.Col>
+                        </>
+                      )}
+                    </Grid>
+                  )}
                 </Stack>
               </Card>
             </Stack>

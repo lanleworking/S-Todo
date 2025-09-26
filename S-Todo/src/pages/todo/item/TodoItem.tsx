@@ -374,6 +374,17 @@ function TodoItem({ data }: TodoItemProps) {
                   </Flex>
                   <Divider />
                   <Flex align={'center'} justify={'space-between'}>
+                    <Text size="sm">{t('label.notify')}</Text>
+                    <Badge
+                      bd={'1px solid'}
+                      variant="light"
+                      color={todoData.notify ? 'green' : 'red'}
+                    >
+                      {todoData.notify ? 'On' : 'Off'}
+                    </Badge>
+                  </Flex>
+                  <Divider />
+                  <Flex align={'center'} justify={'space-between'}>
                     <Text size="sm">{t('label.startDate')}</Text>
                     <Tooltip label={formatDateTime(todoData.startDate!)}>
                       <Text size="sm">{fromNow(todoData.startDate!)}</Text>

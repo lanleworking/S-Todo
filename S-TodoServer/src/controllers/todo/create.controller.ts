@@ -1,19 +1,20 @@
 import { desc, eq } from 'drizzle-orm';
 import { db } from '../../drizzle/db';
-import { todoOrders, todos, todoUsers } from '../../drizzle/schema';
-import { NewTodoType, TodoOrderType, TodoType } from '../../drizzle/type';
+import { todoNotifications, todoOrders, todos, todoUsers } from '../../drizzle/schema';
+import { NewTodoNotiType, NewTodoType, TodoOrderType, TodoType } from '../../drizzle/type';
 import { EHttpCode, EStatusCodes, ICommonResponse } from '../../types/http';
 import { throwResponse } from '../../utils/response';
 import { ETodoStatus } from '../../types/app';
-
+import dayjs from 'dayjs';
 type CreateTodoResponseType = ICommonResponse & {
     data: TodoType & TodoOrderType;
 };
 
 async function create(
-    payload: NewTodoType & {
-        sharedWith?: string[];
-    },
+    payload: NewTodoType &
+        NewTodoNotiType & {
+            sharedWith?: string[];
+        },
     userId: string,
 ): Promise<CreateTodoResponseType> {
     // Determine users to share the todo with
@@ -36,8 +37,6 @@ async function create(
         endDate: payload.endDate ? new Date(payload.endDate).toISOString() : null,
         createdby: userId,
     };
-    console.log(processedPayload);
-
     // Create the todo
     const [lastestNewTodo] = await db
         .select({
@@ -64,6 +63,20 @@ async function create(
             userId,
         })),
     );
+
+    if (payload.notify) {
+        const dayOfMonth = payload.notiType === 'monthly' ? dayjs(payload.notiTime).date() : null;
+        const time = payload.notiType === 'monthly' ? dayjs(payload.notiTime).format('HH:mm') : payload.notiTime;
+        await db.insert(todoNotifications).values({
+            todoId: newTodo.id,
+            userId,
+            notiTime: time,
+            notiType: payload.notiType,
+            notiTitle: payload.notiTitle,
+            notiMessage: payload.notiMessage,
+            notiDayOfMonth: dayOfMonth,
+        });
+    }
 
     return {
         status: EStatusCodes.CREATED,

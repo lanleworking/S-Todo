@@ -24,9 +24,22 @@ export const NON_WHITESPACE_REGEX = /^\S*$/
 
 export const LINKS = [
   {
+    href: '/',
+    label: 'label.home',
+    type: 'home',
+    showOnly: 'mobile',
+  },
+  {
     href: '/todo',
     label: 'label.todoList',
     type: 'list',
+  },
+  {
+    href: '/manage/create',
+    label: 'label.create',
+    type: 'create',
+    showOnly: 'mobile',
+    notAllowRole: EUserRole.USER,
   },
   {
     href: '/manage',
@@ -35,3 +48,8 @@ export const LINKS = [
     notAllowRole: EUserRole.USER,
   },
 ]
+
+export enum ENotiType {
+  MONTHLY = 'monthly',
+  DAILY = 'daily',
+}

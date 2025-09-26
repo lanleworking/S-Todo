@@ -60,6 +60,9 @@
     "amount": "Amount",
     "content": "Content",
     "donate": "Donate",
+    "notify": "Notify",
+    "home": "Home",
+    "create": "Create",
     "paymentModal": {
       "info": "Payment Information",
       "openBankingLink": "Click here to view payment details",

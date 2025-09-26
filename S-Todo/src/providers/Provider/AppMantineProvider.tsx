@@ -35,6 +35,24 @@ function AppMantimeProvider({ children }: { children: React.ReactNode }) {
       TextInput: {
         defaultProps: inputDefaultProps,
       },
+      Select: {
+        defaultProps: inputDefaultProps,
+      },
+      MultiSelect: {
+        defaultProps: inputDefaultProps,
+      },
+      DatePicker: {
+        defaultProps: inputDefaultProps,
+      },
+      DatePickerInput: {
+        defaultProps: inputDefaultProps,
+      },
+      DateTimePicker: {
+        defaultProps: inputDefaultProps,
+      },
+      TimePicker: {
+        defaultProps: inputDefaultProps,
+      },
     },
   })
 

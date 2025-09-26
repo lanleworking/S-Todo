@@ -3,7 +3,9 @@ import { pool } from './drizzle/db';
 import setupRoutes from './routes';
 import cors from '@elysiajs/cors';
 import staticPlugin from '@elysiajs/static';
-
+import './firebase/config';
+import cron from 'node-cron';
+import { dailyNotiChecker } from './utils/dailyNotiChecker';
 // init app
 const app = new Elysia();
 app.use(staticPlugin()).use(
@@ -25,6 +27,11 @@ pool.connect()
         console.error('Error connecting to the database:', err);
         process.exit(1);
     });
+
+cron.schedule('*/1 * * * *', async () => {
+    await dailyNotiChecker();
+});
+
 app.listen({
     port: process.env.PORT!,
 });

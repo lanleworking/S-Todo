@@ -60,6 +60,9 @@
     "amount": "Số tiền",
     "content": "Nội dung",
     "donate": "Đóng góp",
+    "notify": "Thông báo",
+    "home": "Trang chủ",
+    "create": "Tạo ",
     "paymentModal": {
       "info": "Thông tin thanh toán",
       "openBankingLink": "Nhấn vào đây để xem chi tiết thanh toán",

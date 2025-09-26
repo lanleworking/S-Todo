@@ -45,6 +45,7 @@ export interface ITodo {
   type: string
   endDate: string
   shared: boolean
+  notify: boolean
   createdBy: string
   createdAt: string
 }

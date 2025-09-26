@@ -83,11 +83,11 @@ function HomePage({ todoData }: { todoData: ITodo[] }) {
           </Center>
         ) : (
           <Grid
-            styles={{
-              inner: {
-                height: '100%',
-              },
-            }}
+            // styles={{
+            //   inner: {
+            //     height: '100%',
+            //   },
+            // }}
             px={{ base: 0, sm: 20 }}
             flex={1}
             align="stretch"

@@ -35,7 +35,7 @@ function AuthProvider({ children }: { children: React.ReactNode }) {
         }
       })
       .finally(() => {
-        setTimeout(() => setIsLoading(false), 300)
+        setTimeout(() => setIsLoading(false), 2000)
       })
   }, [])
 
