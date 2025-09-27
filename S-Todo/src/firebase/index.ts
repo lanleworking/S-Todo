@@ -12,18 +12,56 @@ const firebaseConfig = {
   measurementId: import.meta.env.VITE_FIREBASE_MEASUREMENT_ID,
 }
 
+// Check if all required Firebase config values are present
+const requiredConfigKeys = [
+  'apiKey',
+  'authDomain',
+  'projectId',
+  'storageBucket',
+  'messagingSenderId',
+  'appId',
+]
+const missingKeys = requiredConfigKeys.filter(
+  (key) => !firebaseConfig[key as keyof typeof firebaseConfig],
+)
+
+if (missingKeys.length > 0) {
+  console.error('Missing Firebase configuration values:', missingKeys)
+  throw new Error(
+    `Firebase configuration is incomplete. Missing: ${missingKeys.join(', ')}`,
+  )
+}
+
 const app = initializeApp(firebaseConfig)
-const messaging = getMessaging(app)
+let messaging: any = null
+
+// Initialize messaging only if we're in a browser environment and Firebase is properly configured
+if (typeof window !== 'undefined' && 'serviceWorker' in navigator) {
+  try {
+    messaging = getMessaging(app)
+  } catch (error) {
+    console.error('Failed to initialize Firebase messaging:', error)
+  }
+}
 
 // Ask permission & get FCM token
 export async function requestNotificationPermission() {
+  if (!messaging) {
+    throw new Error('Firebase messaging is not initialized')
+  }
+
   const permission = await Notification.requestPermission()
   if (permission !== 'granted') {
     throw new Error('Notification permission not granted')
   }
 
+  const vapidKey = import.meta.env.VITE_FIREBASE_VAPID_KEY
+  if (!vapidKey) {
+    throw new Error('Firebase VAPID key is not configured')
+  }
+
   const token = await getToken(messaging, {
-    vapidKey: import.meta.env.VITE_FIREBASE_VAPID_KEY,
+    vapidKey,
   })
 
   // 👉 send this token to your backend so you can target this user
@@ -35,6 +73,13 @@ export async function requestNotificationPermission() {
 
 // Listen to foreground messages
 export function listenForMessages() {
+  if (!messaging) {
+    console.warn(
+      'Firebase messaging is not initialized, skipping message listener',
+    )
+    return
+  }
+
   onMessage(messaging, (payload) => {
     alert(payload.notification?.title + '\n' + payload.notification?.body)
   })
