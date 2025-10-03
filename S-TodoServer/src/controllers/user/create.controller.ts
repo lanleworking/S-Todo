@@ -13,10 +13,15 @@ export const storeFirebaseToken = async (userId: string, payload: { token: strin
 
     const tokenExist = await db.select().from(userTokens).where(eq(userTokens.userId, userId)).limit(1);
     if (!isEmpty(tokenExist)) {
+        await db.insert(userTokens).values({
+            userId,
+            token: payload.token,
+        });
+
         return {
             status: EStatusCodes.OK,
-            code: EHttpCode.NO_CONTENT,
-            message: 'Token already exists',
+            code: EHttpCode.CREATE,
+            message: 'Token updated successfully',
         };
     } else {
         await db.insert(userTokens).values({
