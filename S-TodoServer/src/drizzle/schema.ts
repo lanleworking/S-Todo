@@ -29,7 +29,7 @@ export const todos = pgTable('todos', {
         length: 255,
     }),
     description: text('description'),
-    createdby: varchar('created_by', {
+    createdBy: varchar('created_by', {
         length: 50,
     }).references(() => users.userId, { onDelete: 'cascade', onUpdate: 'cascade' }),
     status: varchar('status', {
@@ -114,6 +114,7 @@ export const userTokens = pgTable('user_tokens', {
         .references(() => users.userId, { onDelete: 'cascade', onUpdate: 'cascade' }),
     token: varchar('token', { length: 255 }).notNull(),
     createdAt: timestamp('created_at', { mode: 'string' }).defaultNow(),
+    updatedAt: timestamp('updated_at', { mode: 'string' }).defaultNow(),
 });
 
 export const todoNotifications = pgTable('todo_notifications', {

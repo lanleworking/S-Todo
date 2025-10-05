@@ -20,7 +20,7 @@ async function getAllOnwer(userId: string) {
         })
         .from(todos)
         .innerJoin(todoOrders, eq(todos.id, todoOrders.todoId))
-        .where(eq(todos.createdby, userId));
+        .where(eq(todos.createdBy, userId));
 
     const data = allUserTodos.reduce(
         (acc: Record<string, typeof allUserTodos>, todo) => {
@@ -51,7 +51,7 @@ const getListTodo = async (userId: string) => {
             status: todos.status,
             priority: todos.priority,
             endDate: todos.endDate,
-            createdBy: todos.createdby,
+            createdBy: todos.createdBy,
             type: todos.type,
             createdAt: todos.createdAt,
             startDate: todos.startDate,
@@ -62,7 +62,7 @@ const getListTodo = async (userId: string) => {
         })
         .from(todoUsers)
         .innerJoin(todos, and(eq(todoUsers.todoId, todos.id), and(eq(todoUsers.userId, userId))))
-        .innerJoin(users, eq(todos.createdby, users.userId))
+        .innerJoin(users, eq(todos.createdBy, users.userId))
         .orderBy(desc(todoUsers.assignedAt), desc(todos.createdAt));
 
     // get total participants for each todo
@@ -171,7 +171,7 @@ const getRecentTodo = async (userId: string) => {
             status: todos.status,
             priority: todos.priority,
             endDate: todos.endDate,
-            createdBy: todos.createdby,
+            createdBy: todos.createdBy,
             type: todos.type,
             createdAt: todos.createdAt,
             startDate: todos.startDate,
@@ -181,7 +181,7 @@ const getRecentTodo = async (userId: string) => {
         })
         .from(todoUsers)
         .innerJoin(todos, and(eq(todoUsers.todoId, todos.id), and(eq(todoUsers.userId, userId))))
-        .innerJoin(users, eq(todos.createdby, users.userId))
+        .innerJoin(users, eq(todos.createdBy, users.userId))
         .orderBy(desc(todoUsers.assignedAt), desc(todos.createdAt))
         .limit(4);
 

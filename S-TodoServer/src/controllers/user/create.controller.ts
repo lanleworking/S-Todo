@@ -13,11 +13,13 @@ export const storeFirebaseToken = async (userId: string, payload: { token: strin
 
     const tokenExist = await db.select().from(userTokens).where(eq(userTokens.userId, userId)).limit(1);
     if (!isEmpty(tokenExist)) {
-        await db.insert(userTokens).values({
-            userId,
-            token: payload.token,
-        });
-
+        await db
+            .update(userTokens)
+            .set({
+                token: payload.token,
+                updatedAt: new Date().toISOString(),
+            })
+            .where(eq(userTokens.userId, userId));
         return {
             status: EStatusCodes.OK,
             code: EHttpCode.CREATE,
