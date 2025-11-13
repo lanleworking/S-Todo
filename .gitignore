@@ -1,5 +1,9 @@
-S-Todo/10.0.33.152+3-key.pem
-S-Todo/10.0.33.152+3.pem
-S-Todo/cert/cert.pem
-S-Todo/cert/key.pem
-S-TodoServer/firebase-key.json
+node_modules
+.DS_Store
+dist
+dist-ssr
+*.local
+count.txt
+.env
+.nitro
+.tanstack
