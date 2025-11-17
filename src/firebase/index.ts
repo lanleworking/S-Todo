@@ -83,6 +83,19 @@ export function listenForMessages() {
   }
 
   onMessage(messaging, (payload) => {
-    alert(payload.notification?.title + '\n' + payload.notification?.body)
+    const title = payload.notification?.title || 'Thông báo mới'
+    const options = {
+      body: payload.notification?.body || '',
+      icon: payload.notification?.icon || '/App_Logo.png',
+      badge: '/App_Logo.png',
+      tag: payload.messageId || 'notification',
+      requireInteraction: false,
+      data: payload.data || {},
+    }
+
+    // Show notification if permission is granted
+    if (Notification.permission === 'granted') {
+      new Notification(title, options)
+    }
   })
 }
