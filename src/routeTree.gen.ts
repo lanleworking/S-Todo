@@ -101,8 +101,8 @@ export interface FileRoutesByFullPath {
   '/todo/payment-history': typeof TodoPaymentHistoryRoute
   '/manage/': typeof ManageIndexRoute
   '/todo/': typeof TodoIndexRoute
-  '/manage/create': typeof ManageCreateIndexRoute
-  '/todo/$id': typeof TodoIdIndexRoute
+  '/manage/create/': typeof ManageCreateIndexRoute
+  '/todo/$id/': typeof TodoIdIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -147,8 +147,8 @@ export interface FileRouteTypes {
     | '/todo/payment-history'
     | '/manage/'
     | '/todo/'
-    | '/manage/create'
-    | '/todo/$id'
+    | '/manage/create/'
+    | '/todo/$id/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -269,14 +269,14 @@ declare module '@tanstack/react-router' {
     '/todo/$id/': {
       id: '/todo/$id/'
       path: '/$id'
-      fullPath: '/todo/$id'
+      fullPath: '/todo/$id/'
       preLoaderRoute: typeof TodoIdIndexRouteImport
       parentRoute: typeof TodoRouteRoute
     }
     '/manage/create/': {
       id: '/manage/create/'
       path: '/create'
-      fullPath: '/manage/create'
+      fullPath: '/manage/create/'
       preLoaderRoute: typeof ManageCreateIndexRouteImport
       parentRoute: typeof ManageRouteRoute
     }

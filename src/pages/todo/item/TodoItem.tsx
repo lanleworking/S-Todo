@@ -32,13 +32,124 @@ import { useDisclosure } from '@mantine/hooks'
 import { useContext, useEffect, useState } from 'react'
 import { FaDonate, FaHistory, FaPencilAlt } from 'react-icons/fa'
 import { FaUserGroup, FaUserPen } from 'react-icons/fa6'
-import { MdAttachMoney, MdEdit } from 'react-icons/md'
+import { MdAttachMoney, MdEdit, MdPieChart } from 'react-icons/md'
 import { HiOutlineInformationCircle } from 'react-icons/hi'
 import { isEmpty } from 'lodash'
 import { Empty } from 'antd'
 import AnimatedNumber from '@/components/Animate/AnimatedNumber'
 import { useTranslation } from 'react-i18next'
 import { AuthContext } from '@/providers/Context/AuthContext'
+import { Doughnut } from 'react-chartjs-2'
+import {
+  Chart as ChartJS,
+  ArcElement,
+  Tooltip as ChartTooltip,
+  Legend as ChartLegend,
+} from 'chart.js'
+
+import type { IUserDonation } from '@/constants/Data'
+
+ChartJS.register(ArcElement, ChartTooltip, ChartLegend)
+
+const CHART_COLORS = [
+  '#7c3aed',
+  '#2563eb',
+  '#059669',
+  '#d97706',
+  '#dc2626',
+  '#db2777',
+  '#0891b2',
+  '#65a30d',
+]
+
+function DonationChart({
+  data,
+  serverUrl,
+}: {
+  data: IUserDonation[]
+  serverUrl: string
+}) {
+  const formatVND = (v: number) =>
+    new Intl.NumberFormat('vi-VN', {
+      style: 'currency',
+      currency: 'VND',
+      minimumFractionDigits: 0,
+    }).format(v)
+
+  const chartData = {
+    labels: data.map((u) => u.fullName || u.userId),
+    datasets: [
+      {
+        data: data.map((u) => Number(u.totalAmount)),
+        backgroundColor: CHART_COLORS,
+        borderColor: CHART_COLORS,
+        borderWidth: 1,
+        hoverOffset: 6,
+      },
+    ],
+  }
+
+  const options = {
+    responsive: true,
+    cutout: '60%' as const,
+    plugins: {
+      legend: { display: false },
+      tooltip: {
+        callbacks: {
+          label: (ctx: { parsed: number }) => ` ${formatVND(ctx.parsed)}`,
+        },
+      },
+    },
+  }
+
+  return (
+    <Card styles={{ root: { backgroundColor: '#80808021' } }} shadow="sm">
+      <Flex className="text-purple-600" gap={8} align="center" mb={12}>
+        <MdPieChart />
+        <Text fw={500}>Donation Breakdown</Text>
+      </Flex>
+      <Center>
+        <div style={{ width: 200, height: 200 }}>
+          <Doughnut data={chartData} options={options} />
+        </div>
+      </Center>
+      <Stack gap={6} mt={12}>
+        {data.map((u, i) => (
+          <Flex key={u.userId} align="center" justify="space-between" gap={10}>
+            <Flex align="center" gap={8}>
+              <div
+                style={{
+                  width: 12,
+                  height: 12,
+                  borderRadius: 3,
+                  backgroundColor: CHART_COLORS[i % CHART_COLORS.length],
+                  flexShrink: 0,
+                }}
+              />
+              <Flex align="center" gap={6}>
+                <Avatar
+                  size={20}
+                  src={u.avatarUrl ? `${serverUrl}/${u.avatarUrl}` : undefined}
+                  name={u.fullName || u.userId}
+                  color="initials"
+                />
+                <Text size="sm">{u.fullName || u.userId}</Text>
+              </Flex>
+            </Flex>
+            <Text size="sm" fw={600} c="green">
+              <NumberFormatter
+                value={u.totalAmount}
+                thousandSeparator
+                suffix="đ"
+                prefix="+"
+              />
+            </Text>
+          </Flex>
+        ))}
+      </Stack>
+    </Card>
+  )
+}
 
 type TodoItemProps = {
   data: ITodoData
@@ -56,7 +167,7 @@ function TodoItem({ data }: TodoItemProps) {
   const { t } = useTranslation()
   const { user } = useContext(AuthContext)
   const isOwner = user?.userId === todoData.createdBy
-  const { getPaymentLogs, getTodoById } = useTodo()
+  const { getPaymentLogs, getTodoById, getDonationChart } = useTodo()
   const { formatDateTime, fromNow, isAfter } = useDayJs()
   const [
     openedPaymentModal,
@@ -75,6 +186,8 @@ function TodoItem({ data }: TodoItemProps) {
     refetch: refetchPaymentLogs,
     isLoading: isLoadingPaymentLogs,
   } = getPaymentLogs(filterPayload)
+  const { data: donationChartData, refetch: refetchDonationChart } =
+    getDonationChart(todoData.id)
 
   useEffect(() => {
     refetchPaymentLogs()
@@ -89,11 +202,13 @@ function TodoItem({ data }: TodoItemProps) {
   useEffect(() => {
     document.title = `${data.title} | S-Todo`
     refetchPaymentLogs()
+    if (todoData.type === 'fund') refetchDonationChart()
   }, [])
 
   const handleRefreshAfterPayment = () => {
     refetchTodo()
     refetchPaymentLogs()
+    if (todoData.type === 'fund') refetchDonationChart()
   }
 
   const handleTodoUpdated = (updated: ITodoData) => {
@@ -197,11 +312,10 @@ function TodoItem({ data }: TodoItemProps) {
                       <Table.Tr>
                         <Table.Th>{t('label.time')}</Table.Th>
                         <Table.Th>{t('label.user')}</Table.Th>
-                        <Table.Th>{t('label.action')}</Table.Th>
+                        <Table.Th>{t('label.amount')}</Table.Th>
                         <Table.Th>{t('label.note')}</Table.Th>
                       </Table.Tr>
                     </Table.Thead>
-
                     <Table.Tbody>
                       {paymentLogsData?.data &&
                         Array.isArray(paymentLogsData.data) &&
@@ -256,6 +370,16 @@ function TodoItem({ data }: TodoItemProps) {
                   />
                 </Center>
               </Card>
+
+              {/* Donation chart — fund todos only */}
+              {todoData.type === 'fund' &&
+                donationChartData &&
+                donationChartData.length > 0 && (
+                  <DonationChart
+                    data={donationChartData}
+                    serverUrl={SERVER_URL}
+                  />
+                )}
             </Stack>
           </Grid.Col>
 

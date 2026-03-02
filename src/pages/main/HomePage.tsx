@@ -15,7 +15,14 @@ import clsx from 'clsx'
 import dayjs from 'dayjs'
 import LiveClock from '@/components/Clock/LiveClock'
 import useDayJs from '@/hooks/useDayJs'
-import { Cell, Tooltip, BarChart, Bar, XAxis, YAxis } from 'recharts'
+import { Bar } from 'react-chartjs-2'
+import {
+  Chart as ChartJS,
+  CategoryScale,
+  LinearScale,
+  BarElement,
+  Tooltip as ChartTooltip,
+} from 'chart.js'
 import { LuUsersRound } from 'react-icons/lu'
 import { CiTimer } from 'react-icons/ci'
 import type { ITodo } from '@/constants/Data'
@@ -33,6 +40,7 @@ import { isEmpty } from 'lodash'
 import { Empty } from 'antd'
 
 function HomePage({ todoData }: { todoData: ITodo[] }) {
+  ChartJS.register(CategoryScale, LinearScale, BarElement, ChartTooltip)
   const isMobile = useMediaQuery(MOBILE_MEDIAQUERY)
   const { getCurrentDay, fromNow, isAfter } = useDayJs()
   const { getTodoStatusBarChart } = useTodo()
@@ -185,20 +193,49 @@ function HomePage({ todoData }: { todoData: ITodo[] }) {
               {isEmpty(barChartData) || isEmpty(todoData) ? (
                 <Empty />
               ) : (
-                <BarChart width={400} height={240} data={barChartData}>
-                  <XAxis dataKey={'status'} />
-                  <YAxis />
-                  <Tooltip />
-                  <Bar dataKey="amount" fill="red">
-                    {Array.isArray(barChartData) &&
-                      barChartData.map((entry, index) => (
-                        <Cell
-                          key={`cell-${index}`}
-                          fill={switchStatusColor(entry.status)}
-                        />
-                      ))}
-                  </Bar>
-                </BarChart>
+                <div style={{ width: 400, height: 240 }}>
+                  <Bar
+                    data={{
+                      labels: Array.isArray(barChartData)
+                        ? barChartData.map((d) => d.status)
+                        : [],
+                      datasets: [
+                        {
+                          label: t('label.overview'),
+                          data: Array.isArray(barChartData)
+                            ? barChartData.map((d) => d.amount)
+                            : [],
+                          backgroundColor: Array.isArray(barChartData)
+                            ? barChartData.map((d) => {
+                                const c = switchStatusColor(d.status)
+                                if (c === 'orange') return '#f97316'
+                                if (c === 'green') return '#22c55e'
+                                return '#9ca3af'
+                              })
+                            : [],
+                          borderRadius: 6,
+                        },
+                      ],
+                    }}
+                    options={{
+                      responsive: true,
+                      maintainAspectRatio: false,
+                      plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                          callbacks: {
+                            title: (items) => items[0]?.label ?? '',
+                            label: (ctx) => ` ${ctx.parsed.y}`,
+                          },
+                        },
+                      },
+                      scales: {
+                        x: { grid: { display: false } },
+                        y: { beginAtZero: true, ticks: { stepSize: 1 } },
+                      },
+                    }}
+                  />
+                </div>
               )}
             </Center>
           </Grid.Col>

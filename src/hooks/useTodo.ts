@@ -5,6 +5,7 @@ import type {
   ISelectOption,
   ITodoPaymentPayload,
   ITodoPaymentResponse,
+  IUserDonation,
 } from '@/constants/Data'
 import { useMutation, useQuery } from '@tanstack/react-query'
 
@@ -119,6 +120,16 @@ function useTodo() {
     },
   })
 
+  const getDonationChart = (todoId: number) =>
+    useQuery<IUserDonation[]>({
+      queryKey: ['getDonationChart', todoId],
+      queryFn: async () => {
+        const res = await axiosClient.get(`/todo/${todoId}/donation-chart`)
+        return Array.isArray(res.data) ? res.data : []
+      },
+      enabled: false,
+    })
+
   const removeUserFromTodo = useMutation({
     mutationKey: ['removeUserFromTodo'],
     mutationFn: async ({
@@ -142,6 +153,7 @@ function useTodo() {
     getTodoById,
     getTodoStatusBarChart,
     getUserOptions,
+    getDonationChart,
     updateTodo,
     addUserToTodo,
     removeUserFromTodo,

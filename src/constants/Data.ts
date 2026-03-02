@@ -137,3 +137,10 @@ export interface IPaymentHistoryResponse {
     totalPage: number
   }
 }
+
+export interface IUserDonation {
+  userId: string
+  fullName: string | null
+  avatarUrl: string | null
+  totalAmount: number
+}
