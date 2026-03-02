@@ -1,6 +1,7 @@
 import { StrictMode } from 'react'
 import ReactDOM from 'react-dom/client'
 import { RouterProvider, createRouter } from '@tanstack/react-router'
+import { ConfigProvider } from 'antd'
 
 import * as TanStackQueryProvider from './integrations/tanstack-query/root-provider.tsx'
 
@@ -16,7 +17,6 @@ import reportWebVitals from './reportWebVitals.ts'
 
 // init i18n
 import './config/i18n.ts'
-import { ConfigProvider } from 'antd'
 
 // Create a new router instance
 const TanStackQueryProviderContext = TanStackQueryProvider.getContext()

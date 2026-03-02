@@ -1,7 +1,7 @@
-import { useEffect, useState } from 'react'
+import { animate } from 'animejs'
+import { useEffect, useRef, useState } from 'react'
 import { Text } from '@mantine/core'
 import dayjs from 'dayjs'
-import { motion, AnimatePresence } from 'framer-motion'
 
 type LiveClockProps = {
   size?: string | number
@@ -26,6 +26,58 @@ export default function LiveClock({
   const minute = dayjs(now).format('mm')
   const ampm = dayjs(now).format('A')
 
+  // Refs for animatable elements
+  const hourRef = useRef<HTMLSpanElement>(null)
+  const minuteRef = useRef<HTMLSpanElement>(null)
+  const colonRef = useRef<HTMLSpanElement>(null)
+  const ampmRef = useRef<HTMLSpanElement>(null)
+
+  // Animate colon opacity on blink
+  useEffect(() => {
+    if (!colonRef.current) return
+    animate(colonRef.current, {
+      opacity: showColon ? 1 : 0,
+      duration: 300,
+      ease: 'inOutSine',
+    })
+  }, [showColon])
+
+  // Animate hour digit flip
+  const prevHour = useRef(hour)
+  useEffect(() => {
+    if (!hourRef.current || prevHour.current === hour) return
+    prevHour.current = hour
+    animate(hourRef.current, {
+      opacity: [0, 1],
+      translateY: [-10, 0],
+      duration: 300,
+      ease: 'outCubic',
+    })
+  }, [hour])
+
+  // Animate minute digit flip
+  const prevMinute = useRef(minute)
+  useEffect(() => {
+    if (!minuteRef.current || prevMinute.current === minute) return
+    prevMinute.current = minute
+    animate(minuteRef.current, {
+      opacity: [0, 1],
+      translateY: [-10, 0],
+      duration: 300,
+      ease: 'outCubic',
+    })
+  }, [minute])
+
+  // Fade in ampm on mount
+  useEffect(() => {
+    if (!ampmRef.current) return
+    animate(ampmRef.current, {
+      opacity: [0, 1],
+      duration: 400,
+      ease: 'outCubic',
+    })
+  }, [])
+
   return (
     <Text
       role="timer"
@@ -38,23 +90,13 @@ export default function LiveClock({
         alignItems: 'baseline',
       }}
     >
-      <AnimatePresence mode="popLayout" initial={false}>
-        <motion.span
-          key={hour}
-          initial={{ opacity: 0, y: -10 }}
-          animate={{ opacity: 1, y: 0 }}
-          exit={{ opacity: 0, y: 10 }}
-          transition={{ duration: 0.3 }}
-          style={{ lineHeight: 1 }}
-        >
-          {hour}
-        </motion.span>
-      </AnimatePresence>
+      <span ref={hourRef} style={{ lineHeight: 1 }}>
+        {hour}
+      </span>
 
-      <motion.span
+      <span
+        ref={colonRef}
         aria-hidden
-        animate={{ opacity: showColon ? 1 : 0 }}
-        transition={{ duration: 0.5, ease: 'easeInOut' }}
         style={{
           width: '0.6ch',
           textAlign: 'center',
@@ -63,29 +105,18 @@ export default function LiveClock({
         }}
       >
         :
-      </motion.span>
+      </span>
 
-      <AnimatePresence mode="popLayout" initial={false}>
-        <motion.span
-          key={minute}
-          initial={{ opacity: 0, y: -10 }}
-          animate={{ opacity: 1, y: 0 }}
-          exit={{ opacity: 0, y: 10 }}
-          transition={{ duration: 0.3 }}
-          style={{ lineHeight: 1 }}
-        >
-          {minute}
-        </motion.span>
-      </AnimatePresence>
+      <span ref={minuteRef} style={{ lineHeight: 1 }}>
+        {minute}
+      </span>
 
-      <motion.span
+      <span
+        ref={ampmRef}
         style={{ marginLeft: 8, fontSize: '0.6em', lineHeight: 1 }}
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ duration: 0.4 }}
       >
         {ampm}
-      </motion.span>
+      </span>
     </Text>
   )
 }

@@ -1,14 +1,17 @@
-import { TitleWithReturn } from '@/components/TitleWithReturn'
-import { PAYMENT_EXPIRE_MINUTES } from '@/constants/payment'
-import usePayment from '@/hooks/usePayment'
-import useDayJs from '@/hooks/useDayJs'
-import { usePaymentTimer } from '@/providers/Context/PaymentTimerContext'
-import type { IPaymentHistoryItem } from '@/constants/Data'
+import { animate } from 'animejs'
+import { useEffect, useMemo, useRef, useState } from 'react'
+import { useTranslation } from 'react-i18next'
+import { Link } from '@tanstack/react-router'
+import { QRCode, Empty } from 'antd'
+import { isEmpty } from 'lodash'
+import { MdAttachMoney } from 'react-icons/md'
 import {
   Anchor,
   Badge,
   Button,
+  Card,
   Center,
+  Flex,
   Group,
   Loader,
   Modal,
@@ -21,11 +24,12 @@ import {
   Tooltip,
 } from '@mantine/core'
 import { useDisclosure } from '@mantine/hooks'
-import { QRCode } from 'antd'
-import { Empty } from 'antd'
-import { isEmpty } from 'lodash'
-import { useEffect, useState } from 'react'
-import { useTranslation } from 'react-i18next'
+import { TitleWithReturn } from '@/components/TitleWithReturn'
+import { PAYMENT_EXPIRE_MINUTES } from '@/constants/payment'
+import usePayment from '@/hooks/usePayment'
+import useDayJs from '@/hooks/useDayJs'
+import { usePaymentTimer } from '@/providers/Context/PaymentTimerContext'
+import type { IPaymentHistoryItem } from '@/constants/Data'
 import { fetchError } from '@/utils/toast/fetchError'
 import appLogo from '@/assets/logos/App_Logo.png'
 
@@ -52,6 +56,48 @@ function statusColor(status: string): string {
   }
 }
 
+/* ── Anime.js animated number ───────────────────────────── */
+function AnimeNumber({
+  value,
+  locale = 'vi-VN',
+  options = { style: 'currency', currency: 'VND', minimumFractionDigits: 0 },
+  className,
+}: {
+  value: number
+  locale?: string
+  options?: Intl.NumberFormatOptions
+  className?: string
+}) {
+  const ref = useRef<HTMLSpanElement>(null)
+  const prevRef = useRef<number>(0)
+
+  useEffect(() => {
+    const el = ref.current
+    if (!el) return
+    const from = prevRef.current
+    prevRef.current = value
+    const obj = { val: from }
+
+    animate(obj, {
+      val: value,
+      duration: 1200,
+      ease: 'outExpo',
+      onUpdate: () => {
+        el.textContent = new Intl.NumberFormat(locale, options).format(
+          Math.round(obj.val),
+        )
+      },
+    })
+  }, [value])
+
+  return (
+    <span ref={ref} className={className}>
+      {new Intl.NumberFormat(locale, options).format(0)}
+    </span>
+  )
+}
+
+/* ── Main page ──────────────────────────────────────────── */
 function PaymentHistoryPage() {
   const { t } = useTranslation()
   const [page, setPage] = useState(1)
@@ -72,6 +118,15 @@ function PaymentHistoryPage() {
   useEffect(() => {
     refetch()
   }, [page])
+
+  /** Total of PAID items on the current page */
+  const totalPaid = useMemo(
+    () =>
+      (data?.data ?? [])
+        .filter((i) => i.status.toUpperCase() === 'PAID')
+        .reduce((sum, i) => sum + i.amount, 0),
+    [data],
+  )
 
   /** Returns minutes remaining for a pending payment, or null if expired */
   const getMinutesRemaining = (createdAt: string | null): number | null => {
@@ -103,7 +158,6 @@ function PaymentHistoryPage() {
           })
           openModal()
         } else {
-          // Status has changed – refresh the list so the user sees the update
           refetch()
         }
       },
@@ -180,6 +234,25 @@ function PaymentHistoryPage() {
           to="/todo"
         />
 
+        {/* Total spend card */}
+        <Card
+          styles={{ root: { backgroundColor: '#80808021' } }}
+          shadow="sm"
+          p="md"
+          radius="md"
+        >
+          <Flex align="center" gap={10} className="text-purple-600" mb={6}>
+            <MdAttachMoney size={18} />
+            <Text fw={600} size="sm">
+              Total Spent
+            </Text>
+          </Flex>
+          <AnimeNumber
+            value={totalPaid}
+            className="text-green-500 text-2xl font-bold"
+          />
+        </Card>
+
         <TableScrollContainer minWidth={700}>
           <Table verticalSpacing="sm" striped highlightOnHover>
             <Table.Thead>
@@ -223,9 +296,18 @@ function PaymentHistoryPage() {
                       </Table.Td>
 
                       <Table.Td>
-                        <Text size="sm" fw={500}>
-                          {item.todoTitle || `#${item.todoId}`}
-                        </Text>
+                        <Link
+                          to="/todo/$id"
+                          params={{ id: String(item.todoId) }}
+                        >
+                          <Text
+                            size="sm"
+                            fw={500}
+                            className="hover:text-purple-600 transition-colors"
+                          >
+                            {item.todoTitle || `#${item.todoId}`}
+                          </Text>
+                        </Link>
                       </Table.Td>
 
                       <Table.Td>

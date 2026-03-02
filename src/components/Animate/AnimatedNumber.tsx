@@ -1,12 +1,12 @@
-import { useEffect, useRef, useState } from 'react'
-import { animate, useMotionValue, useTransform } from 'framer-motion'
+import { animate } from 'animejs'
+import { useEffect, useRef } from 'react'
 
 type AnimatedNumberProps = {
   value: number
   duration?: number // seconds
   className?: string
-  locale?: string // e.g. "en-US", "de-DE", "vi-VN"
-  options?: Intl.NumberFormatOptions // to customize format
+  locale?: string
+  options?: Intl.NumberFormatOptions
 }
 
 function AnimatedNumber({
@@ -16,40 +16,43 @@ function AnimatedNumber({
   locale = 'en-US',
   options = {},
 }: AnimatedNumberProps) {
-  const numericValue = Number(value) || 0 // Ensure it's always a number
-  const previousValueRef = useRef<number>(0)
-  const motionValue = useMotionValue(0) // Start from 0 instead of previousValueRef.current
-  const rounded = useTransform(motionValue, (latest) => Math.round(latest))
-  const [display, setDisplay] = useState(
-    new Intl.NumberFormat(locale, options).format(0), // Start from 0
-  )
+  const ref = useRef<HTMLSpanElement>(null)
+  const prevRef = useRef<number>(0)
+  // Keep latest config in refs so the effect only re-runs when `value` changes
+  const localeRef = useRef(locale)
+  const optionsRef = useRef(options)
+  const durationRef = useRef(duration)
+
+  localeRef.current = locale
+  optionsRef.current = options
+  durationRef.current = duration
 
   useEffect(() => {
-    const unsubscribe = rounded.on('change', (latest) => {
-      setDisplay(new Intl.NumberFormat(locale, options).format(latest))
+    const el = ref.current
+    if (!el) return
+
+    const from = prevRef.current
+    prevRef.current = value
+    const obj = { val: from }
+
+    animate(obj, {
+      val: value,
+      duration: durationRef.current * 1000,
+      ease: 'outExpo',
+      onUpdate: () => {
+        el.textContent = new Intl.NumberFormat(
+          localeRef.current,
+          optionsRef.current,
+        ).format(Math.round(obj.val))
+      },
     })
-    return () => unsubscribe()
-  }, [rounded, locale, options])
+  }, [value])
 
-  useEffect(() => {
-    const from = previousValueRef.current
-    const to = numericValue
-
-    if (from !== to && !isNaN(to) && !isNaN(from)) {
-      const controls = animate(motionValue, to, { duration })
-      previousValueRef.current = to
-      return controls.stop
-    }
-
-    if (!isNaN(numericValue)) {
-      setDisplay(new Intl.NumberFormat(locale, options).format(numericValue))
-      previousValueRef.current = numericValue
-    }
-
-    return () => undefined
-  }, [numericValue, duration, locale, options, motionValue])
-
-  return <span className={className}>{display}</span>
+  return (
+    <span ref={ref} className={className}>
+      {new Intl.NumberFormat(locale, options).format(0)}
+    </span>
+  )
 }
 
 export default AnimatedNumber

@@ -10,6 +10,7 @@ import {
   switchStatusColor,
 } from '@/utils/checkers/priority'
 import {
+  ActionIcon,
   Avatar,
   Badge,
   Button,
@@ -18,6 +19,7 @@ import {
   Divider,
   Flex,
   Grid,
+  Group,
   NumberFormatter,
   Pagination,
   Progress,
@@ -32,12 +34,13 @@ import { useDisclosure } from '@mantine/hooks'
 import { useContext, useEffect, useState } from 'react'
 import { FaDonate, FaHistory, FaPencilAlt } from 'react-icons/fa'
 import { FaUserGroup, FaUserPen } from 'react-icons/fa6'
-import { MdAttachMoney, MdEdit, MdPieChart } from 'react-icons/md'
+import { MdAttachMoney, MdEdit, MdPieChart, MdRefresh } from 'react-icons/md'
 import { HiOutlineInformationCircle } from 'react-icons/hi'
 import { isEmpty } from 'lodash'
 import { Empty } from 'antd'
 import AnimatedNumber from '@/components/Animate/AnimatedNumber'
 import { useTranslation } from 'react-i18next'
+import toast from 'react-hot-toast'
 import { AuthContext } from '@/providers/Context/AuthContext'
 import { Doughnut } from 'react-chartjs-2'
 import {
@@ -205,10 +208,17 @@ function TodoItem({ data }: TodoItemProps) {
     if (todoData.type === 'fund') refetchDonationChart()
   }, [])
 
-  const handleRefreshAfterPayment = () => {
-    refetchTodo()
-    refetchPaymentLogs()
-    if (todoData.type === 'fund') refetchDonationChart()
+  const handleRefreshAfterPayment = async () => {
+    try {
+      await Promise.all([
+        refetchTodo(),
+        refetchPaymentLogs(),
+        ...(todoData.type === 'fund' ? [refetchDonationChart()] : []),
+      ])
+      toast.success('Data refreshed successfully')
+    } catch {
+      toast.error('Failed to refresh data')
+    }
   }
 
   const handleTodoUpdated = (updated: ITodoData) => {
@@ -239,13 +249,20 @@ function TodoItem({ data }: TodoItemProps) {
         onSuccess={handleTodoUpdated}
       />
       <Stack>
-        <TitleWithReturn
-          titleProps={{
-            order: 2,
-          }}
-          title={todoData.title}
-          to="/todo"
-        />
+        <Group>
+          <TitleWithReturn
+            titleProps={{
+              order: 2,
+            }}
+            title={todoData.title}
+            to="/todo"
+          />
+          <Tooltip label="Refresh data">
+            <ActionIcon variant="subtle" onClick={handleRefreshAfterPayment}>
+              <MdRefresh size={18} />
+            </ActionIcon>
+          </Tooltip>
+        </Group>
 
         {/* Owner actions */}
         {isOwner && (

@@ -1,8 +1,14 @@
+import { useContext } from 'react'
+import {
+  createFileRoute,
+  notFound,
+  useLoaderData,
+} from '@tanstack/react-router'
+import type { ITodoData } from '@/constants/Data'
 import MetaTag from '@/components/Meta'
 import axiosClient from '@/config/axios'
-import type { ITodoData } from '@/constants/Data'
 import { TodoItem } from '@/pages/todo/item'
-import { createFileRoute, useLoaderData } from '@tanstack/react-router'
+import { AuthContext } from '@/providers/Context/AuthContext'
 
 export const Route = createFileRoute('/todo/$id/')({
   loader: async ({ params }: any) => {
@@ -10,9 +16,12 @@ export const Route = createFileRoute('/todo/$id/')({
       const todoId = params.id
       const res = await axiosClient.get(`/todo/${todoId}`)
       return res.data || {}
-    } catch (error) {
-      console.error('Failed to load todo item:', error)
-      throw error // Re-throw to let TanStack Router handle the error
+    } catch (error: any) {
+      const status = error?.response?.status
+      if (status === 404 || status === 403) {
+        throw notFound()
+      }
+      throw error
     }
   },
   component: RouteComponent,
@@ -20,6 +29,16 @@ export const Route = createFileRoute('/todo/$id/')({
 
 function RouteComponent() {
   const todoItemData = useLoaderData({ from: '/todo/$id/' }) as ITodoData
+  const { user } = useContext(AuthContext)
+
+  const isMember =
+    todoItemData.createdBy === user?.userId ||
+    todoItemData.users?.some((u) => u.userId === user?.userId)
+
+  if (!isMember) {
+    throw notFound()
+  }
+
   return (
     <>
       <MetaTag
