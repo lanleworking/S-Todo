@@ -20,7 +20,7 @@ import { LuUsersRound } from 'react-icons/lu'
 import { CiTimer } from 'react-icons/ci'
 import type { ITodo } from '@/constants/Data'
 import {
-  swichPriorityColor,
+  switchPriorityColor,
   switchStatusColor,
 } from '@/utils/checkers/priority'
 import useTodo from '@/hooks/useTodo'
@@ -111,7 +111,7 @@ function HomePage({ todoData }: { todoData: ITodo[] }) {
                               {todo.title}
                             </Title>
                             <Badge
-                              color={swichPriorityColor(todo.priority)}
+                              color={switchPriorityColor(todo.priority)}
                               size="sm"
                             >
                               {todo.priority}

@@ -66,6 +66,15 @@
     "home": "Trang chủ",
     "create": "Tạo ",
     "pageNotExist": "Trang không tồn tại",
+    "todo": "Todo",
+    "paymentHistory": {
+      "title": "Lịch sử thanh toán",
+      "continueTitle": "Tiếp tục thanh toán",
+      "timeRemain": "Thời gian còn lại",
+      "minutesLeft": "Còn {{count}} phút",
+      "expired": "Hết hạn",
+      "empty": "Không có lịch sử thanh toán"
+    },
     "paymentModal": {
       "info": "Thông tin thanh toán",
       "openBankingLink": "Nhấn vào đây để xem chi tiết thanh toán",
@@ -78,7 +87,9 @@
     "donate": "Đóng góp",
     "close": "Đóng",
     "check": "Kiểm tra",
-    "generateQRCode": "Tạo mã QR"
+    "generateQRCode": "Tạo mã QR",
+    "cancel": "Hủy",
+    "continue": "Tiếp tục"
   },
   "payment": {
     "success": {

@@ -35,11 +35,17 @@ export const LINKS = [
     type: 'list',
   },
   {
+    href: '/todo/payment-history',
+    label: 'label.paymentHistory.title',
+    type: 'payment-history',
+  },
+  {
     href: '/manage/create',
     label: 'label.create',
     type: 'create',
     showOnly: 'mobile',
     notAllowRole: EUserRole.USER,
+    hideOnMobileFooter: true,
   },
   {
     href: '/manage',

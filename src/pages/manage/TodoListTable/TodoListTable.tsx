@@ -2,7 +2,7 @@ import { CreateNewTodoBtn } from '@/components/Buttons/CreateNewTodoBtn'
 import type { ITodoList } from '@/constants/Data'
 import useDayJs from '@/hooks/useDayJs'
 import {
-  swichPriorityColor,
+  switchPriorityColor,
   switchStatusColor,
 } from '@/utils/checkers/priority'
 import {
@@ -74,7 +74,7 @@ function TodoListTable({ data }: { data: ITodoList[] }) {
                         <Badge
                           bd={'1px solid'}
                           variant="light"
-                          color={swichPriorityColor(todo.priority)}
+                          color={switchPriorityColor(todo.priority)}
                         >
                           {todo.priority}
                         </Badge>

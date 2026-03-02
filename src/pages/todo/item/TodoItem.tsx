@@ -1,10 +1,12 @@
 import PaymentModal from '@/components/Modal/PaymentModal'
+import EditTodoModal from '@/components/Modal/EditTodoModal'
+import ManageUsersModal from '@/components/Modal/ManageUsersModal'
 import { TitleWithReturn } from '@/components/TitleWithReturn'
 import type { ITodoData, ITodoPaymentPayload } from '@/constants/Data'
 import useDayJs from '@/hooks/useDayJs'
 import useTodo from '@/hooks/useTodo'
 import {
-  swichPriorityColor,
+  switchPriorityColor,
   switchStatusColor,
 } from '@/utils/checkers/priority'
 import {
@@ -27,15 +29,16 @@ import {
   Typography,
 } from '@mantine/core'
 import { useDisclosure } from '@mantine/hooks'
-import { useEffect, useState } from 'react'
+import { useContext, useEffect, useState } from 'react'
 import { FaDonate, FaHistory, FaPencilAlt } from 'react-icons/fa'
-import { FaUserGroup } from 'react-icons/fa6'
-import { MdAttachMoney } from 'react-icons/md'
+import { FaUserGroup, FaUserPen } from 'react-icons/fa6'
+import { MdAttachMoney, MdEdit } from 'react-icons/md'
 import { HiOutlineInformationCircle } from 'react-icons/hi'
 import { isEmpty } from 'lodash'
 import { Empty } from 'antd'
 import AnimatedNumber from '@/components/Animate/AnimatedNumber'
 import { useTranslation } from 'react-i18next'
+import { AuthContext } from '@/providers/Context/AuthContext'
 
 type TodoItemProps = {
   data: ITodoData
@@ -51,11 +54,19 @@ function TodoItem({ data }: TodoItemProps) {
   const SERVER_URL = import.meta.env.VITE_API_URL
   const { users } = todoData
   const { t } = useTranslation()
+  const { user } = useContext(AuthContext)
+  const isOwner = user?.userId === todoData.createdBy
   const { getPaymentLogs, getTodoById } = useTodo()
   const { formatDateTime, fromNow, isAfter } = useDayJs()
   const [
     openedPaymentModal,
     { open: openPaymentModal, close: closePaymentModal },
+  ] = useDisclosure(false)
+  const [openedEditModal, { open: openEditModal, close: closeEditModal }] =
+    useDisclosure(false)
+  const [
+    openedManageUsers,
+    { open: openManageUsers, close: closeManageUsers },
   ] = useDisclosure(false)
 
   const { data: todoQueryData, refetch: refetchTodo } = getTodoById(todoData.id)
@@ -84,6 +95,11 @@ function TodoItem({ data }: TodoItemProps) {
     refetchTodo()
     refetchPaymentLogs()
   }
+
+  const handleTodoUpdated = (updated: ITodoData) => {
+    setTodoData((prev) => ({ ...prev, ...updated }))
+  }
+
   return (
     <>
       <PaymentModal
@@ -93,6 +109,20 @@ function TodoItem({ data }: TodoItemProps) {
         onClose={closePaymentModal}
         title={t('label.donate')}
       />
+      <EditTodoModal
+        opened={openedEditModal}
+        onClose={closeEditModal}
+        data={todoData}
+        onSuccess={handleTodoUpdated}
+      />
+      <ManageUsersModal
+        opened={openedManageUsers}
+        onClose={closeManageUsers}
+        data={todoData}
+        currentUserId={user?.userId || ''}
+        serverUrl={SERVER_URL}
+        onSuccess={handleTodoUpdated}
+      />
       <Stack>
         <TitleWithReturn
           titleProps={{
@@ -101,6 +131,29 @@ function TodoItem({ data }: TodoItemProps) {
           title={todoData.title}
           to="/todo"
         />
+
+        {/* Owner actions */}
+        {isOwner && (
+          <Flex gap={8} wrap="wrap">
+            <Button
+              size="xs"
+              variant="light"
+              leftSection={<MdEdit size={14} />}
+              onClick={openEditModal}
+            >
+              Edit Todo
+            </Button>
+            <Button
+              size="xs"
+              variant="light"
+              color="grape"
+              leftSection={<FaUserPen size={14} />}
+              onClick={openManageUsers}
+            >
+              Manage Members
+            </Button>
+          </Flex>
+        )}
 
         <Grid>
           <Grid.Col span={{ base: 12, md: 8 }}>
@@ -371,7 +424,7 @@ function TodoItem({ data }: TodoItemProps) {
                     <Badge
                       bd={'1px solid'}
                       variant="light"
-                      color={swichPriorityColor(todoData.priority)}
+                      color={switchPriorityColor(todoData.priority)}
                     >
                       {todoData.priority}
                     </Badge>

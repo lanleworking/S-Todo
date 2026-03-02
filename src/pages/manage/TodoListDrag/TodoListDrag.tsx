@@ -29,7 +29,7 @@ import useTodo from '@/hooks/useTodo'
 import { fetchError } from '@/utils/toast/fetchError'
 import toast from 'react-hot-toast'
 import { CreateNewTodoBtn } from '@/components/Buttons/CreateNewTodoBtn'
-import { swichPriorityColor } from '@/utils/checkers/priority'
+import { switchPriorityColor } from '@/utils/checkers/priority'
 
 type ManageTodoProps = {
   manageTodoData: IManageTodoData
@@ -255,7 +255,7 @@ function ManageTodo({ manageTodoData }: ManageTodoProps) {
                                   <Badge
                                     variant="light"
                                     bd="1px solid"
-                                    color={swichPriorityColor(t.priority)}
+                                    color={switchPriorityColor(t.priority)}
                                   >
                                     {t.priority}
                                   </Badge>

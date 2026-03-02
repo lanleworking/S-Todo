@@ -1,5 +1,6 @@
 import axiosClient from '@/config/axios'
-import { useMutation } from '@tanstack/react-query'
+import type { IPaymentHistoryResponse } from '@/constants/Data'
+import { useMutation, useQuery } from '@tanstack/react-query'
 
 function usePayment() {
   const createPaymentMutate = useMutation({
@@ -25,7 +26,20 @@ function usePayment() {
       return res.data
     },
   })
-  return { createPaymentMutate, getPayment, cancelPayment }
+
+  const getPaymentHistory = (page: number = 1, limit: number = 10) =>
+    useQuery<IPaymentHistoryResponse>({
+      queryKey: ['payment-history', page, limit],
+      queryFn: async () => {
+        const res = await axiosClient.get('/payment/history', {
+          params: { page, limit },
+        })
+        return res.data
+      },
+      enabled: false,
+    })
+
+  return { createPaymentMutate, getPayment, cancelPayment, getPaymentHistory }
 }
 
 export default usePayment

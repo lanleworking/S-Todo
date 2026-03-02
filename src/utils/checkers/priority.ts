@@ -1,6 +1,6 @@
 import { ETodoPriority, ETodoStatus } from '@/constants/Data'
 
-export const swichPriorityColor = (priority: string) => {
+export const switchPriorityColor = (priority: string) => {
   if (!priority) return 'gray'
   const value = priority.toUpperCase()
   switch (value) {

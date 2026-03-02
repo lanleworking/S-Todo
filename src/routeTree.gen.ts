@@ -16,6 +16,7 @@ import { Route as AuthRouteRouteImport } from './routes/auth.route'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as TodoIndexRouteImport } from './routes/todo/index'
 import { Route as ManageIndexRouteImport } from './routes/manage/index'
+import { Route as TodoPaymentHistoryRouteImport } from './routes/todo/payment-history'
 import { Route as AuthResetPasswordRouteImport } from './routes/auth/reset-password'
 import { Route as AuthRegisterRouteImport } from './routes/auth/register'
 import { Route as AuthLoginRouteImport } from './routes/auth/login'
@@ -57,6 +58,11 @@ const ManageIndexRoute = ManageIndexRouteImport.update({
   path: '/',
   getParentRoute: () => ManageRouteRoute,
 } as any)
+const TodoPaymentHistoryRoute = TodoPaymentHistoryRouteImport.update({
+  id: '/payment-history',
+  path: '/payment-history',
+  getParentRoute: () => TodoRouteRoute,
+} as any)
 const AuthResetPasswordRoute = AuthResetPasswordRouteImport.update({
   id: '/reset-password',
   path: '/reset-password',
@@ -92,6 +98,7 @@ export interface FileRoutesByFullPath {
   '/auth/login': typeof AuthLoginRoute
   '/auth/register': typeof AuthRegisterRoute
   '/auth/reset-password': typeof AuthResetPasswordRoute
+  '/todo/payment-history': typeof TodoPaymentHistoryRoute
   '/manage/': typeof ManageIndexRoute
   '/todo/': typeof TodoIndexRoute
   '/manage/create': typeof ManageCreateIndexRoute
@@ -104,6 +111,7 @@ export interface FileRoutesByTo {
   '/auth/login': typeof AuthLoginRoute
   '/auth/register': typeof AuthRegisterRoute
   '/auth/reset-password': typeof AuthResetPasswordRoute
+  '/todo/payment-history': typeof TodoPaymentHistoryRoute
   '/manage': typeof ManageIndexRoute
   '/todo': typeof TodoIndexRoute
   '/manage/create': typeof ManageCreateIndexRoute
@@ -119,6 +127,7 @@ export interface FileRoutesById {
   '/auth/login': typeof AuthLoginRoute
   '/auth/register': typeof AuthRegisterRoute
   '/auth/reset-password': typeof AuthResetPasswordRoute
+  '/todo/payment-history': typeof TodoPaymentHistoryRoute
   '/manage/': typeof ManageIndexRoute
   '/todo/': typeof TodoIndexRoute
   '/manage/create/': typeof ManageCreateIndexRoute
@@ -135,6 +144,7 @@ export interface FileRouteTypes {
     | '/auth/login'
     | '/auth/register'
     | '/auth/reset-password'
+    | '/todo/payment-history'
     | '/manage/'
     | '/todo/'
     | '/manage/create'
@@ -147,6 +157,7 @@ export interface FileRouteTypes {
     | '/auth/login'
     | '/auth/register'
     | '/auth/reset-password'
+    | '/todo/payment-history'
     | '/manage'
     | '/todo'
     | '/manage/create'
@@ -161,6 +172,7 @@ export interface FileRouteTypes {
     | '/auth/login'
     | '/auth/register'
     | '/auth/reset-password'
+    | '/todo/payment-history'
     | '/manage/'
     | '/todo/'
     | '/manage/create/'
@@ -225,6 +237,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/manage/'
       preLoaderRoute: typeof ManageIndexRouteImport
       parentRoute: typeof ManageRouteRoute
+    }
+    '/todo/payment-history': {
+      id: '/todo/payment-history'
+      path: '/payment-history'
+      fullPath: '/todo/payment-history'
+      preLoaderRoute: typeof TodoPaymentHistoryRouteImport
+      parentRoute: typeof TodoRouteRoute
     }
     '/auth/reset-password': {
       id: '/auth/reset-password'
@@ -295,11 +314,13 @@ const ManageRouteRouteWithChildren = ManageRouteRoute._addFileChildren(
 )
 
 interface TodoRouteRouteChildren {
+  TodoPaymentHistoryRoute: typeof TodoPaymentHistoryRoute
   TodoIndexRoute: typeof TodoIndexRoute
   TodoIdIndexRoute: typeof TodoIdIndexRoute
 }
 
 const TodoRouteRouteChildren: TodoRouteRouteChildren = {
+  TodoPaymentHistoryRoute: TodoPaymentHistoryRoute,
   TodoIndexRoute: TodoIndexRoute,
   TodoIdIndexRoute: TodoIdIndexRoute,
 }

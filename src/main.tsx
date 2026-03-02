@@ -6,6 +6,7 @@ import * as TanStackQueryProvider from './integrations/tanstack-query/root-provi
 
 // mantine
 import AppMantimeProvider from './providers/Provider/AppMantineProvider.tsx'
+import PaymentTimerProvider from './providers/Provider/PaymentTimerProvider.tsx'
 
 // Import the generated route tree
 import { routeTree } from './routeTree.gen'
@@ -51,16 +52,18 @@ if (rootElement && !rootElement.innerHTML) {
     <StrictMode>
       <TanStackQueryProvider.Provider {...TanStackQueryProviderContext}>
         <AppMantimeProvider>
-          <ConfigProvider
-            theme={{
-              token: {
-                fontFamily: 'SourceCodePro, monospace',
-                colorPrimary: 'var(--primary-color)',
-              },
-            }}
-          >
-            <RouterProvider router={router} />
-          </ConfigProvider>
+          <PaymentTimerProvider>
+            <ConfigProvider
+              theme={{
+                token: {
+                  fontFamily: 'SourceCodePro, monospace',
+                  colorPrimary: 'var(--primary-color)',
+                },
+              }}
+            >
+              <RouterProvider router={router} />
+            </ConfigProvider>
+          </PaymentTimerProvider>
         </AppMantimeProvider>
       </TanStackQueryProvider.Provider>
     </StrictMode>,

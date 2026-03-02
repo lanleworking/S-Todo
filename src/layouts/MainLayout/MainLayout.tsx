@@ -3,14 +3,15 @@ import AppHeader from '@/components/Headers/AppHeader'
 import { LINKS } from '@/constants/App'
 import { MOBILE_MEDIAQUERY } from '@/constants/MediaQuery'
 import { AuthContext } from '@/providers/Context/AuthContext'
-import { AppShell, Box, Flex, NavLink, Text } from '@mantine/core'
+import { AppShell, Box, Flex, Text, UnstyledButton } from '@mantine/core'
 import { useMediaQuery } from '@mantine/hooks'
 import { Link, useRouter } from '@tanstack/react-router'
 import { useContext } from 'react'
 import { useTranslation } from 'react-i18next'
-import { CiBoxList, CiCirclePlus } from 'react-icons/ci'
+import { CiBoxList } from 'react-icons/ci'
 import { FaHouse } from 'react-icons/fa6'
 import { RiListSettingsLine } from 'react-icons/ri'
+import { MdHistory } from 'react-icons/md'
 
 function MainLayout({ children }: { children: React.ReactNode }) {
   const router = useRouter()
@@ -22,17 +23,21 @@ function MainLayout({ children }: { children: React.ReactNode }) {
   const iconMenuSwitch = (type: string) => {
     switch (type) {
       case 'list':
-        return <CiBoxList />
+        return <CiBoxList size={20} />
       case 'manage':
-        return <RiListSettingsLine />
+        return <RiListSettingsLine size={20} />
       case 'home':
-        return <FaHouse />
-      case 'create':
-        return <CiCirclePlus />
+        return <FaHouse size={20} />
+      case 'payment-history':
+        return <MdHistory size={20} />
       default:
         return null
     }
   }
+
+  const mobileLinks = LINKS.filter(
+    (l) => !l.hideOnMobileFooter && l.notAllowRole !== user?.role,
+  )
 
   return (
     <AppShell
@@ -48,32 +53,74 @@ function MainLayout({ children }: { children: React.ReactNode }) {
 
       {isMobile && (
         <AppShell.Footer>
-          <Flex align={'center'} justify="space-around" py={10}>
-            {LINKS.map((l, i) => (
-              <NavLink
-                leftSection={iconMenuSwitch(l.type)}
-                hidden={l.notAllowRole === user?.role}
-                component={Link}
-                key={i}
-                style={{
-                  borderRadius: '8px',
-                  width: 'fit-content',
-                }}
-                to={l.href}
-                label={<Text size={'0.6rem'}>{t(l.label)}</Text>}
-                styles={{
-                  root: {
-                    display: 'block',
-                  },
-                  section: {
-                    marginBottom: '4px',
-                    marginRight: 0,
-                  },
-                }}
-                active={path === l.href}
-              />
-            ))}
-            <AvtWithMenu />
+          <Flex
+            align="stretch"
+            h={58}
+            style={{
+              borderTop: '1px solid var(--border-color)',
+              backgroundColor: 'var(--mantine-color-body)',
+            }}
+          >
+            {mobileLinks.map((l, i) => {
+              // Leaf links use startsWith; parent links (that have children in the list) match exactly
+              const hasChildren = mobileLinks.some(
+                (other) =>
+                  other.href !== l.href && other.href.startsWith(l.href + '/'),
+              )
+              const isActive =
+                l.href === '/'
+                  ? path === l.href
+                  : hasChildren
+                    ? path === l.href || path === l.href + '/'
+                    : path.startsWith(l.href)
+              return (
+                <UnstyledButton
+                  key={i}
+                  component={Link}
+                  to={l.href}
+                  style={{ flex: 1 }}
+                >
+                  <Flex
+                    direction="column"
+                    align="center"
+                    justify="center"
+                    gap={3}
+                    h="100%"
+                    style={{
+                      color: isActive
+                        ? 'var(--primary-color)'
+                        : 'var(--mantine-color-dimmed)',
+                      transition: 'color 0.15s',
+                    }}
+                  >
+                    {iconMenuSwitch(l.type)}
+                    <Text
+                      size="0.55rem"
+                      fw={isActive ? 600 : 400}
+                      ta="center"
+                      lh={1.2}
+                      style={{ letterSpacing: '-0.01em' }}
+                    >
+                      {t(l.label)}
+                    </Text>
+                  </Flex>
+                </UnstyledButton>
+              )
+            })}
+
+            {/* Me tab */}
+            <Box style={{ flex: 1 }}>
+              <Flex
+                direction="column"
+                align="center"
+                justify="center"
+                gap={3}
+                h="100%"
+                style={{ color: 'var(--mantine-color-dimmed)' }}
+              >
+                <AvtWithMenu />
+              </Flex>
+            </Box>
           </Flex>
         </AppShell.Footer>
       )}

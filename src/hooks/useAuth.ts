@@ -27,8 +27,8 @@ function useAuth() {
   // logout
   const logOutMutation = useMutation({
     mutationKey: ['logOut'],
-    mutationFn: async () => {
-      const res = await axiosClient.post('/auth/logout')
+    mutationFn: async (data: any) => {
+      const res = await axiosClient.post('/auth/logout', data)
       return res.data
     },
   })

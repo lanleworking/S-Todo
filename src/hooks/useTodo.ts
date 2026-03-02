@@ -2,6 +2,7 @@ import axiosClient from '@/config/axios'
 import type {
   IChartData,
   IManageTodoData,
+  ISelectOption,
   ITodoPaymentPayload,
   ITodoPaymentResponse,
 } from '@/constants/Data'
@@ -87,6 +88,51 @@ function useTodo() {
     enabled: false,
   })
 
+  const getUserOptions = useQuery<ISelectOption[]>({
+    queryKey: ['getUserOptions'],
+    queryFn: async () => {
+      const res = await axiosClient.get('/todo/user-options')
+      return Array.isArray(res.data) ? res.data : []
+    },
+    enabled: false,
+  })
+
+  const updateTodo = useMutation({
+    mutationKey: ['updateTodo'],
+    mutationFn: async ({ todoId, data }: { todoId: number; data: any }) => {
+      const res = await axiosClient.put(`/todo/${todoId}/update`, data)
+      return res.data
+    },
+  })
+
+  const addUserToTodo = useMutation({
+    mutationKey: ['addUserToTodo'],
+    mutationFn: async ({
+      todoId,
+      userId,
+    }: {
+      todoId: number
+      userId: string
+    }) => {
+      const res = await axiosClient.post(`/todo/${todoId}/members`, { userId })
+      return res.data
+    },
+  })
+
+  const removeUserFromTodo = useMutation({
+    mutationKey: ['removeUserFromTodo'],
+    mutationFn: async ({
+      todoId,
+      userId,
+    }: {
+      todoId: number
+      userId: string
+    }) => {
+      const res = await axiosClient.delete(`/todo/${todoId}/members/${userId}`)
+      return res.data
+    },
+  })
+
   return {
     createNewTodo,
     updateTodoManage,
@@ -95,6 +141,10 @@ function useTodo() {
     getPaymentLogs,
     getTodoById,
     getTodoStatusBarChart,
+    getUserOptions,
+    updateTodo,
+    addUserToTodo,
+    removeUserFromTodo,
   }
 }
 

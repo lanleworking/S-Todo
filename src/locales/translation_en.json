@@ -66,6 +66,15 @@
     "home": "Home",
     "create": "Create",
     "pageNotExist": "Page not exist",
+    "todo": "Todo",
+    "paymentHistory": {
+      "title": "Payment History",
+      "continueTitle": "Continue Payment",
+      "timeRemain": "Time Remaining",
+      "minutesLeft": "{{count}} min left",
+      "expired": "Expired",
+      "empty": "No payment history found"
+    },
     "paymentModal": {
       "info": "Payment Information",
       "openBankingLink": "Click here to view payment details",
@@ -78,7 +87,9 @@
     "donate": "Donate",
     "close": "Close",
     "check": "Check",
-    "generateQRCode": "Generate QRCode"
+    "generateQRCode": "Generate QRCode",
+    "cancel": "Cancel",
+    "continue": "Continue"
   },
   "payment": {
     "success": {

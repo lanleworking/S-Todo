@@ -16,6 +16,7 @@ import ChangePassModal from '../Modal/ChangePassModal'
 import ChangeNameModal from '../Modal/ChangeNameModal'
 import { useDisclosure, useMediaQuery } from '@mantine/hooks'
 import { MOBILE_MEDIAQUERY } from '@/constants/MediaQuery'
+import { detectPlatform } from '@/utils/platform'
 
 type AvtWithMenuProps = {
   displayName?: boolean
@@ -41,15 +42,19 @@ function AvtWithMenu({ displayName }: AvtWithMenuProps) {
   ] = useDisclosure(false)
 
   const handleLogout = () => {
-    mutate(undefined, {
-      onSuccess: () => {
-        setUser(null)
-        navigate({
-          to: '/auth/login',
-        })
+    const platform = detectPlatform()
+    mutate(
+      { platform },
+      {
+        onSuccess: () => {
+          setUser(null)
+          navigate({
+            to: '/auth/login',
+          })
+        },
+        onError: (error) => fetchError(error),
       },
-      onError: (error) => fetchError(error),
-    })
+    )
   }
   return (
     <>

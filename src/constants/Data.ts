@@ -114,3 +114,26 @@ export interface IChartData {
   status: string
   amount: number
 }
+
+export interface IPaymentHistoryItem {
+  id: number
+  todoId: number
+  todoTitle: string | null
+  paymentLinkId: string
+  amount: number
+  status: string
+  note: string | null
+  qrCode: string | null
+  createdAt: string | null
+  updatedAt: string | null
+}
+
+export interface IPaymentHistoryResponse {
+  data: IPaymentHistoryItem[]
+  pagination: {
+    total: number
+    page: number
+    limit: number
+    totalPage: number
+  }
+}

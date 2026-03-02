@@ -241,7 +241,6 @@ function CreateTodo({ userOptionsData }: CreateTodoProps) {
               key={key('startDate')}
               label="Start Date"
               withAsterisk
-              minDate={new Date()}
               placeholder="Choose date"
               leftSection={<CiCalendarDate />}
             />
