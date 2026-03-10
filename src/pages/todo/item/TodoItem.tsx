@@ -1,6 +1,7 @@
 import PaymentModal from '@/components/Modal/PaymentModal'
 import EditTodoModal from '@/components/Modal/EditTodoModal'
 import ManageUsersModal from '@/components/Modal/ManageUsersModal'
+import WithdrawModal from '@/components/Modal/WithdrawModal'
 import { TitleWithReturn } from '@/components/TitleWithReturn'
 import type { ITodoData, ITodoPaymentPayload } from '@/constants/Data'
 import useDayJs from '@/hooks/useDayJs'
@@ -34,6 +35,7 @@ import { useDisclosure } from '@mantine/hooks'
 import { useContext, useEffect, useState } from 'react'
 import { FaDonate, FaHistory, FaPencilAlt } from 'react-icons/fa'
 import { FaUserGroup, FaUserPen } from 'react-icons/fa6'
+import { BiMoneyWithdraw } from 'react-icons/bi'
 import { MdAttachMoney, MdEdit, MdPieChart, MdRefresh } from 'react-icons/md'
 import { HiOutlineInformationCircle } from 'react-icons/hi'
 import { isEmpty } from 'lodash'
@@ -182,6 +184,10 @@ function TodoItem({ data }: TodoItemProps) {
     openedManageUsers,
     { open: openManageUsers, close: closeManageUsers },
   ] = useDisclosure(false)
+  const [
+    openedWithdrawModal,
+    { open: openWithdrawModal, close: closeWithdrawModal },
+  ] = useDisclosure(false)
 
   const { data: todoQueryData, refetch: refetchTodo } = getTodoById(todoData.id)
   const {
@@ -248,6 +254,14 @@ function TodoItem({ data }: TodoItemProps) {
         serverUrl={SERVER_URL}
         onSuccess={handleTodoUpdated}
       />
+      {todoData.type === 'fund' && (
+        <WithdrawModal
+          opened={openedWithdrawModal}
+          onClose={closeWithdrawModal}
+          data={todoData}
+          refetchTodo={handleRefreshAfterPayment}
+        />
+      )}
       <Stack>
         <Group>
           <TitleWithReturn
@@ -330,6 +344,7 @@ function TodoItem({ data }: TodoItemProps) {
                         <Table.Th>{t('label.time')}</Table.Th>
                         <Table.Th>{t('label.user')}</Table.Th>
                         <Table.Th>{t('label.amount')}</Table.Th>
+                        <Table.Th>{t('label.status')}</Table.Th>
                         <Table.Th>{t('label.note')}</Table.Th>
                       </Table.Tr>
                     </Table.Thead>
@@ -359,13 +374,34 @@ function TodoItem({ data }: TodoItemProps) {
                             <Table.Td>
                               <NumberFormatter
                                 className={
-                                  log.status === 'PAID' ? 'text-green-600' : ''
+                                  log.status === 'PAID'
+                                    ? 'text-green-600'
+                                    : log.status === 'WITHDRAWAL'
+                                      ? 'text-red-600'
+                                      : ''
                                 }
-                                prefix={log.status === 'PAID' ? '+' : ''}
+                                prefix={
+                                  log.status === 'PAID'
+                                    ? '+'
+                                    : log.status === 'WITHDRAWAL'
+                                      ? '-'
+                                      : ''
+                                }
                                 value={log.amount}
                                 thousandSeparator
                                 suffix="đ"
                               />
+                            </Table.Td>
+                            <Table.Td>
+                              <Badge
+                                variant="light"
+                                color={log.status === 'PAID' ? 'green' : 'red'}
+                                size="sm"
+                              >
+                                {log.status === 'PAID'
+                                  ? t('button.donate')
+                                  : t('label.withdraw')}
+                              </Badge>
                             </Table.Td>
                             <Table.Td>{log.note}</Table.Td>
                           </Table.Tr>
@@ -491,6 +527,18 @@ function TodoItem({ data }: TodoItemProps) {
                   >
                     {t('button.donate')}
                   </Button>
+                  {isOwner && (
+                    <Button
+                      onClick={openWithdrawModal}
+                      mt={8}
+                      variant="light"
+                      color="red"
+                      leftSection={<BiMoneyWithdraw />}
+                      disabled={todoData.totalAmount <= 0}
+                    >
+                      {t('button.withdraw')}
+                    </Button>
+                  )}
                 </Card>
               )}
 

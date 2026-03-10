@@ -39,7 +39,25 @@ function usePayment() {
       enabled: false,
     })
 
-  return { createPaymentMutate, getPayment, cancelPayment, getPaymentHistory }
+  const withdrawFund = useMutation({
+    mutationKey: ['withdraw-fund'],
+    mutationFn: async (data: {
+      todoId: number
+      amount: number
+      note?: string
+    }) => {
+      const res = await axiosClient.post('/payment/withdraw', data)
+      return res.data
+    },
+  })
+
+  return {
+    createPaymentMutate,
+    getPayment,
+    cancelPayment,
+    getPaymentHistory,
+    withdrawFund,
+  }
 }
 
 export default usePayment

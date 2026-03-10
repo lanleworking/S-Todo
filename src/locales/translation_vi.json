@@ -62,6 +62,7 @@
     "amount": "Số tiền",
     "content": "Nội dung",
     "donate": "Đóng góp",
+    "withdraw": "Rút tiền",
     "notify": "Thông báo",
     "home": "Trang chủ",
     "create": "Tạo ",
@@ -89,7 +90,12 @@
     "check": "Kiểm tra",
     "generateQRCode": "Tạo mã QR",
     "cancel": "Hủy",
-    "continue": "Tiếp tục"
+    "continue": "Tiếp tục",
+    "withdraw": "Rút tiền"
+  },
+  "withdraw": {
+    "success": "Rút tiền thành công!",
+    "maxAmount": "Số dư khả dụng"
   },
   "payment": {
     "success": {

@@ -62,6 +62,7 @@
     "amount": "Amount",
     "content": "Content",
     "donate": "Donate",
+    "withdraw": "Withdraw",
     "notify": "Notify",
     "home": "Home",
     "create": "Create",
@@ -89,7 +90,12 @@
     "check": "Check",
     "generateQRCode": "Generate QRCode",
     "cancel": "Cancel",
-    "continue": "Continue"
+    "continue": "Continue",
+    "withdraw": "Withdraw"
+  },
+  "withdraw": {
+    "success": "Withdrawal successful!",
+    "maxAmount": "Available balance"
   },
   "payment": {
     "success": {
